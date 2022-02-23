@@ -1,0 +1,7 @@
+Ch 3
+The ~~read.csv~~ `read_csv()` and ~~read.table~~ `read_table()` functions.
+
+Ch 7
+#### Uneven multivariate Benoulli via the `resp_subset()` approach.
+
+
