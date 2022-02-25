@@ -12,18 +12,23 @@ knitr::opts_chunk$set(collapse = TRUE,
                       optipng = "-o1 -quiet")
 ```
 
-
-
 # Metric Predicted Variable with One Metric Predictor
 
-> We will initially describe the relationship between the predicted variable, $y$ and predictor, $x$, with a simple linear model and normally distributed residual randomness in $y$. This model is often referred to as 'simple linear regression.' We will generalize the model in three ways. First, we will give it a noise distribution that accommodates outliers, which is to say that we will replace the normal distribution with a $t$ distribution as we did in the previous chapter. The model will be implemented in [**brms**]. Next, we will consider differently shaped relations between the predictor and the predicted, such as quadratic trend. Finally, we will consider hierarchical models of situations in which every individual has data that can be described by an individual trend, and we also want to estimate group-level typical trends across individuals. [@kruschkeDoingBayesianData2015, p. 478]
+> We will initially describe the relationship between the predicted variable, $y$ and predictor, $x$, with a simple linear model and normally distributed residual randomness in $y$. This model is often referred to as 'simple linear regression.' We will generalize the model in three ways. First, we will give it a noise distribution that accommodates outliers, which is to say that we will replace the normal distribution with a $t$ distribution as we did in the previous chapter. The model will be implemented in [**brms**]. Next, we will consider differently shaped relations between the predictor and the predicted, such as quadratic trend. Finally, we will consider hierarchical models of situations in which every individual has data that can be described by an individual trend, and we also want to estimate group-level typical trends across individuals [@kruschkeDoingBayesianData2015, p. 478].
 
-## Simple linear regression
+## Simple Linear Regression
 
 It wasn't entirely clear how Kruschke simulated the bimodal data on the right panel of Figure 17.1. I figured an even split of two Gaussians would suffice and just sighted their $\mu$s and $\sigma$s.
 
-```{r, message = F, warning = F}
-library(tidyverse)
+```{r, message = FALSE, warning = FALSE}
+# library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(tibble)
+library(tidyr)
+library(purrr)
+library(readr)
+library(stringr)
 
 # how many draws per panel would you like?
 n_draw <- 1000
@@ -42,7 +47,7 @@ head(d)
 In case you missed it, Kruschke defied the formula for these data in Figure 17.1. It is
 
 \begin{align*}
-y_i & \sim \operatorname{Normal}(\mu, \sigma = 2), \text{where} \\
+y_i & \sim \operatorname{Normal}(\mu, \sigma = 2), \text{in which} \\
 \mu & = 10 + 2 x_i.
 \end{align*}
 
@@ -58,7 +63,8 @@ curves <-
   # use the formula 10 + 2x to compute the expected y-value for x
   mutate(y_mean = 10 + (2 * x)) %>%
   
-  # based on a Gaussian with `mean = y_mean` and `sd = 2`, compute the 99% intervals
+  # based on a Gaussian with `mean = y_mean` and `sd = 2`, 
+  # compute the 99% intervals
   mutate(ll = qnorm(0.005, mean = y_mean, sd = 2),
          ul = qnorm(0.995, mean = y_mean, sd = 2)) %>%
   
@@ -81,7 +87,7 @@ str(curves)
 
 Before we make Figure 17.1, let's talk color. Like last chapter, we'll take our color palette from the **beyonce** package. Our palette will be a nine-point version of #41.
 
-```{r, warning = F, message = F, fig.width = 3, fig.height = 1}
+```{r, warning = FALSE, message = FALSE, fig.width = 3, fig.height = 1}
 library(beyonce)
 
 bp <- beyonce_palette(41, n = 9, type = "continuous")
@@ -91,7 +97,7 @@ bp
 
 The global theme will be `ggplot2::theme_linedraw()` with the grid lines removed. Make Figure 17.1.
 
-```{r, fig.width = 7, fig.height = 4, message = F}
+```{r, fig.width = 7, fig.height = 4, message = FALSE}
 theme_set(
   theme_linedraw() +
     theme(panel.grid = element_blank())
@@ -102,12 +108,13 @@ d %>%
   geom_vline(xintercept = 0, size = 1/3, linetype = 2, color = bp[9]) +
   geom_hline(yintercept = 0, size = 1/3, linetype = 2, color = bp[9]) +
   geom_point(size = 1/3, alpha = 1/3, color = bp[5]) +
-  stat_smooth(method = "lm", se = F, fullrange = T, color = bp[1]) +
+  stat_smooth(method = "lm", se = FALSE, fullrange = TRUE, color = bp[1]) +
   geom_path(data = curves,
             aes(group = y_mean),
             color = bp[2], size = 1) +
   labs(title = "Normal PDF around Linear Function",
-       subtitle = "We simulated x from a uniform distribution in the left panel and simulated it from a mixture of\n two Gaussians on the right.") +
+       subtitle = "We simulated x from a uniform distribution in the left 
+ panel and simulated it from a mixture of\n two Gaussians on the right.") +
   coord_cartesian(xlim = c(-10, 10),
                   ylim = c(-10, 30)) +
   theme(strip.background = element_blank(),
@@ -117,17 +124,17 @@ d %>%
 
 Concerning causality,
 
-> *the simple linear model makes no claims about causal connections between* $x$ *and* $y$. *The simple linear model merely describes a tendency for* $y$ *values to be linearly related to* $x$ *values*, hence "predictable" from the $x$ values. When describing data with this model, we are starting with a scatter plot of points generated by an unknown process in the real world, and estimating parameter values that would produce a smattering of points that might mimic the real data. Even if the descriptive model mimics the data well (and it might not), the mathematical "process" in the model may have little if anything to do with the real-world process that created the data. Nevertheless, the parameters in the descriptive model are meaningful because they describe tendencies in the data. (p. 479, *emphasis* added)
+> *the simple linear model makes no claims about causal connections between* $x$ *and* $y$. *The simple linear model merely describes a tendency for* $y$ *values to be linearly related to* $x$ *values*, hence "predictable" from the $x$ values. When describing data with this model, we are starting with a scatter plot of points generated by an unknown process in the real world, and estimating parameter values that would produce a smattering of points that might mimic the real data. Even if the descriptive model mimics the data well (and it might not), the mathematical "process" in the model may have little if anything to do with the real-world process that created the data. Nevertheless, the parameters in the descriptive model are meaningful because they describe tendencies in the data (p. 479; *emphasis* added).
 
 I emphasized these points because I've heard and seen a lot of academics conflate linear regression models with causal models. For sure, it might well be preferable if your regression model was also a causal model. But good old prediction is fine, too.
 
-## Robust linear regression
+## Robust Linear Regression
 
-> There is no requirement to use a normal distribution for the noise distribution. The normal distribution is traditional because of its relative simplicity in mathematical derivations. But real data may have outliers, and the use of (optionally) heavy-tailed noise distributions is straight forward in contemporary Bayesian software[, like **brms**]. (pp. 479--480)
+> There is no requirement to use a normal distribution for the noise distribution. The normal distribution is traditional because of its relative simplicity in mathematical derivations. But real data may have outliers, and the use of (optionally) heavy-tailed noise distributions is straight forward in contemporary Bayesian software[, like **brms**] (pp. 479--480).
 
 Let's make our version of the model diagram in Figure 17.2 to get a sense of where we're going.
 
-```{r, fig.width = 6.75, fig.height = 5, message = F}
+```{r, fig.width = 6.75, fig.height = 5, message = FALSE}
 library(patchwork)
 
 # normal density
@@ -142,7 +149,7 @@ p1 <-
   annotate(geom = "text",
            x = c(0, 1.5), y = 0.6,
            label = c("italic(M)[0]", "italic(S)[0]"), 
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
@@ -159,7 +166,7 @@ p2 <-
   annotate(geom = "text",
            x = c(0, 1.5), y = 0.6,
            label = c("italic(M)[1]", "italic(S)[1]"), 
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
@@ -179,7 +186,7 @@ p3 <-
   annotate(geom = "text",
            x = c(0.4, 1.25), y = 0.5,
            label = "'~'",
-           size = 10, color = bp[1], family = "Times", parse = T) +
+           size = 10, color = bp[1], family = "Times", parse = TRUE) +
   xlim(0, 2) +
   theme_void()
 
@@ -195,7 +202,7 @@ p4 <-
   annotate(geom = "text",
            x = 0.5, y = 0.6,
            label = "italic(K)",
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
@@ -207,7 +214,7 @@ p5 <-
          label = "beta[0]+beta[1]*italic(x)[italic(i)]") %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = 7, color = bp[1], parse = T, family = "Times") +
+  geom_text(size = 7, color = bp[1], parse = TRUE, family = "Times") +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
   ylim(0, 1) +
   theme_void()
@@ -224,7 +231,7 @@ p6 <-
   annotate(geom = "text",
            x = 1.5, y = 0.6,
            label = "0*','*~italic(S)[sigma]", 
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
@@ -244,11 +251,11 @@ p7 <-
            y = c(0.92, 0.22, 0.65, 0.6),
            label = c("'~'", "'='", "'='", "'~'"),
            size = 10, 
-           color = bp[1], family = "Times", parse = T) +
+           color = bp[1], family = "Times", parse = TRUE) +
   annotate(geom = "text",
            x = 0.43, y = 0.7,
            label = "nu*minute+1",
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   xlim(0, 3) +
   theme_void()
 
@@ -264,7 +271,7 @@ p8 <-
   annotate(geom = "text",
            x = 0, y = 0.6,
            label = "nu~~~mu[italic(i)]~~~sigma",
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
@@ -276,7 +283,7 @@ p9 <-
          label = c("'~'", "italic(i)")) %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = c(10, 7), color = bp[1], parse = T, family = "Times") +
+  geom_text(size = c(10, 7), color = bp[1], parse = TRUE, family = "Times") +
   geom_segment(x = 0.5, xend = 0.5,
                y = 1, yend = 0, 
                color = bp[1], arrow = my_arrow) +
@@ -290,7 +297,7 @@ p10 <-
          label = "italic(y[i])") %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = 7, color = bp[1], parse = T, family = "Times") +
+  geom_text(size = 7, color = bp[1], parse = TRUE, family = "Times") +
   xlim(0, 1) +
   theme_void()
 
@@ -400,11 +407,11 @@ head(d)
 
 > Fortunately, we do not have to worry much about analytical derivations because we can let JAGS or Stan generate a high resolution picture of the posterior distribution. Our job, therefore, is to specify sensible priors and to make sure that the MCMC process generates a trustworthy posterior sample that is converged and well mixed. (p. 483)
 
-### Robust linear regression in ~~JAGS~~ brms.
+### Robust Linear Regression in ~~JAGS~~ brms
 
 Presuming a data set with a sole standardized predictor `x_z` for a sole standardized criterion `y_z`, the basic **brms** code corresponding to the JAGS code Kruschke showed on page 483 looks like this.
 
-```{r eval = F}
+```{r eval = FALSE}
 fit <-
   brm(data = my_data,
       family = student,
@@ -420,7 +427,7 @@ Like we discussed in Chapter 16, we won't be using the uniform prior for $\sigma
 
 Also, look at how we just pumped the definition of our sole `stanvar(1/29, name = "one_over_twentynine")` operation right into the `stanvar` argument. If we were defining multiple values this way, I'd prefer to save this as an object first and then just pump that object into `stanvars`. But in this case, it was simple enough to just throw directly into the `brm()` function.
 
-#### Standardizing the data for MCMC sampling.
+#### Standardizing the Data for MCMC Sampling
 
 Kruschke mentioned how standardizing your data before feeding it into JAGS often helps the algorithm operate smoothly. The same basic principle holds for **brms** and Stan. Stan can often handle unstandardized data just fine. But if you ever run into estimation difficulties, consider standardizing your data and trying again.
 
@@ -439,7 +446,7 @@ d <-
 
 Somewhat analogous to how Kruschke standardized his data within the JAGS code, you could standardize the data within the `brm()` function. That would look something like this.
 
-```{r eval = F}
+```{r eval = FALSE}
 fit <-
   brm(data = d %>%  # the standardizing occurs in the next two lines
         mutate(height_z = standardize(height),
@@ -450,7 +457,7 @@ fit <-
 
 But anyway, let's open **brms**.
 
-```{r, message = F, warning = F}
+```{r, message = FALSE, warning = FALSE}
 library(brms)
 ```
 
@@ -552,7 +559,8 @@ d %>%
               aes(intercept = b_0, slope = b_1, group = .draw),
               color = bp[2], size = 1/4, alpha = 1/3) + 
   geom_point(alpha = 1/2, color = bp[5]) +
-  labs(subtitle = eval(substitute(paste("Data with", n_lines, "credible regression lines"))),
+  labs(subtitle = eval(substitute(paste("Data with", 
+    n_lines, "credible regression lines"))),
        x = "height",
        y = "weight") +
   coord_cartesian(xlim = c(50, 80),
@@ -561,7 +569,7 @@ d %>%
 
 We'll want to open the **tidybayes** package to help make the histograms.
 
-```{r, fig.width = 6, fig.height = 4, warning = F, message = F}
+```{r, fig.width = 6, fig.height = 4, warning = FALSE, message = FALSE}
 library(tidybayes)
 
 # we'll use this to mark off the ROPEs as white strips in the background
@@ -615,7 +623,7 @@ draws %>%
 
 That is one strong correlation! Finally, here's the scatter plot for $\operatorname{log10}(\nu)$ and $\sigma_{\text{transformed back to its raw metric}}$.
 
-```{r, fig.width = 3.25, fig.height = 3, warning = F}
+```{r, fig.width = 3.25, fig.height = 3, warning = FALSE}
 draws %>% 
   transmute(Scale     = sigma * sd_y,
             Normality = nu %>% log10()) %>% 
@@ -660,7 +668,8 @@ ggplot(data = d %>%
               color = bp[6], size = 1/4, alpha = 1/3) +
   geom_point(alpha = 1/2, color = bp[3]) +
   scale_y_continuous(breaks = seq(from = -300, to = 200, by = 100)) +
-  labs(subtitle = eval(substitute(paste("Data with", n_lines, "credible regression lines"))),
+  labs(subtitle = eval(substitute(paste("Data with", 
+   n_lines, "credible regression lines"))),
        x = "height",
        y = "weight") +
   coord_cartesian(xlim = c(0, 80),
@@ -669,7 +678,7 @@ ggplot(data = d %>%
 
 Next we'll make the histograms.
 
-```{r, fig.width = 6, fig.height = 4, warning = F}
+```{r, fig.width = 6, fig.height = 4, warning = FALSE}
 # here are the primary data
 draws %>% 
   transmute(Intercept = b_0,
@@ -695,7 +704,7 @@ draws %>%
 
 And we'll finish up with the scatter plots.
 
-```{r, fig.width = 3.25, fig.height = 3, warning = F}
+```{r, fig.width = 3.25, fig.height = 3, warning = FALSE}
 draws %>% 
   ggplot(aes(x = b_1, y = b_0)) +
   geom_point(color = bp[4], size = 1/3, alpha = 1/3) +
@@ -711,17 +720,17 @@ draws %>%
        y = expression(sigma))
 ```
 
-### Robust linear regression in Stan.
+### Robust Linear Regression in Stan.
 
 > Recall from [Section 14.1][HMC sampling] (p. 400) that Stan uses Hamiltonian dynamics to find proposed positions in parameter space. The trajectories use the gradient of the posterior distribution to move large distances even in narrow distributions. Thus, HMC by itself, without data standardization, should be able to efficiently generate a representative sample from the posterior distribution. (p. 487)
 
 To be clear, we're going to fit the models with Stan/**brms** twice. Above, we used the standardized data like Kruschke did with his JAGS code. Now we're getting ready to follow along with the text and use Stan/**brms** to fit the models with the unstandardized data.
 
-#### Constants for vague priors.
+#### Constants for Vague Priors
 
 The issues is we want a system where we can readily specify vague priors on our regression models when the data are not standardized. As it turns out,
 
-> a regression slope can take on a maximum value of $\operatorname{SD}_y / \operatorname{SD}_x$ for data that are perfectly correlated. Therefore, the prior on the slope will be given a standard deviation that is large compared to that maximum. The biggest that an intercept could be, for data that are perfectly correlated, is $M_x \operatorname{SD}_y / \operatorname{SD}_x$. Therefore, the prior on the intercept will have a standard deviation that is large compared to that maximum. (p. 487)
+> a regression slope can take on a maximum value of $\operatorname{SD}_y / \operatorname{SD}_x$ for data that are perfectly correlated. Therefore, the prior on the slope will be given a standard deviation that is large compared to that maximum. The biggest that an intercept could be, for data that are perfectly correlated, is $M_x \operatorname{SD}_y / \operatorname{SD}_x$. Therefore, the prior on the intercept will have a standard deviation that is large compared to that maximum (p. 487).
 
 With that in mind, we'll specify our `stanvars` as follows.
 
@@ -761,7 +770,7 @@ print(fit17.3)
 
 Now compare the histograms for these posterior draws to those we made, above, from those `fit17.1`. You'll see they're quite similar.
 
-```{r, fig.width = 6, fig.height = 4, warning = F, message = F}
+```{r, fig.width = 6, fig.height = 4, warning = FALSE, message = FALSE}
 # here are the primary data
 as_draws_df(fit17.3) %>% 
   transmute(Intercept = b_Intercept,
@@ -789,7 +798,7 @@ as_draws_df(fit17.3) %>%
 
 In this ebook we only fit the models with **brms**, which uses Stan under the hood. But since we fit the $N = 300$ model with both standardized and unstandardized data, we can compare their performance. For that, we'll want **bayesplot**.
 
-```{r, message = F, warning = F}
+```{r, message = FALSE, warning = FALSE}
 library(bayesplot)
 ```
 
@@ -812,9 +821,9 @@ as_draws_df(fit17.3) %>%
   ggtitle("fit17.3")
 ```
 
-Their $N_{eff}/N$ ratios were pretty similar. Both were reasonable. You'd probably want to run a simulation to contrast them with any rigor.
+Their $N_{\rm eff}/N$ ratios were pretty similar. Both were reasonable. You'd probably want to run a simulation to contrast them with any rigor.
 
-```{r, fig.width = 6, fig.height = 3.25, warning = F, message = F}
+```{r, fig.width = 6, fig.height = 3.25, warning = FALSE, message = FALSE}
 # change the bayesplot color scheme
 color_scheme_set(scheme = bp[c(1, 3, 4, 6, 7, 9)])
 
@@ -833,11 +842,11 @@ p2 <-
 p1 / p2 + plot_layout(guide = "collect")
 ```
 
-### Interpreting the posterior distribution.
+### Interpreting the Posterior Distribution
 
 Halfway through the prose, Kruschke mentioned how the models provide entire posteriors for the `weight` of a 50-inch-tall person. **brms** offers a few ways to do so.
 
-> In some applications, there is interest in extrapolating or interpolating trends at $x$ values sparsely represented in the current data. For instance, we might want to predict the weight of a person who is 50 inches tall. A feature of Bayesian analysis is that we get an entire distribution of credible predicted values, not only a point estimate. (p. 489)
+> In some applications, there is interest in extrapolating or interpolating trends at $x$ values sparsely represented in the current data. For instance, we might want to predict the weight of a person who is 50 inches tall. A feature of Bayesian analysis is that we get an entire distribution of credible predicted values, not only a point estimate (p. 489).
 
 Since this is such a simple model, one way is to work directly with the posterior draws Here we use the model formula $y_i = \beta_0 + \beta_1 x_i$ by adding the transformed intercept `b_0` to the product of $50$ and the transformed coefficient for `height`, `b_1`.
 
@@ -870,12 +879,12 @@ The code returned a typical **brms**-style summary of the posterior mean, standa
 nd <- tibble(height_z = (50 - mean(d$height)) / sd(d$height))
 ```
 
-When we feed this value into `fitted()`, it will return the corresponding posterior within the standardized metric. But we want unstandardized, so we'll need to transform. That'll be a few-step process. First, to do the transformation properly, we'll want to work with the poster draws themselves, rather than summary values. So we'll set `summary = F`. We'll then convert the draws into a tibble format. Then we'll use the `transmute()` function to do the conversion. In the final step, we'll use `mean_qi()` to compute the summary values.
+When we feed this value into `fitted()`, it will return the corresponding posterior within the standardized metric. But we want unstandardized, so we'll need to transform. That'll be a few-step process. First, to do the transformation properly, we'll want to work with the poster draws themselves, rather than summary values. So we'll set `summary = FALSE`. We'll then convert the draws into a tibble format. Then we'll use the `transmute()` function to do the conversion. In the final step, we'll use `mean_qi()` to compute the summary values.
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 fitted(fit17.1,
        newdata = nd,
-       summary = F) %>% 
+       summary = FALSE) %>% 
   as_tibble() %>% 
   transmute(weight = V1 * sd(d$weight) + mean(d$weight)) %>% 
   mean_qi()
@@ -883,25 +892,25 @@ fitted(fit17.1,
 
 If you look above, you'll see the results are within rounding error of those from `fit3`.
 
-## Hierarchical regression on individuals within groups
+## Hierarchical Regression on Individuals within Groups
 
-> In the previous applications, the $j$th individual contributed a single $x_j, y_j$ pair. But suppose instead that every individual, $j$, contributes multiple observations of $x_{i|j}, y_{i|j}$ pairs. (The subscript notation $i|j$ means the $i$th observation within the $j$th individual.) With these data, we can estimate a regression curve for every individual. If we also assume that the individuals are mutually representative of a common group, then we can estimate group-level parameters too. (p. 490)
+> In the previous applications, the $j$th individual contributed a single $x_j, y_j$ pair. But suppose instead that every individual, $j$, contributes multiple observations of $x_{i \mid j}, y_{i \mid j}$ pairs. (The subscript notation $i \mid j$ means the $i$th observation within the $j$th individual.) With these data, we can estimate a regression curve for every individual. If we also assume that the individuals are mutually representative of a common group, then we can estimate group-level parameters too (p. 490).
 
 Load the fictitious data and take a `glimpse()`.
 
-```{r, message = F}
+```{r, message = FALSE}
 my_data <- read_csv("~/Desktop/DBDA/data.R/HierLinRegressData.csv")
 
 glimpse(my_data)
 ```
 
-> Our goal is to describe each individual with a linear regression, and simultaneously to estimate the typical slope and intercept of the group overall. A key assumption for our analysis is that each individual is representative of the group. Therefore, every individual informs the estimate of the group slope and intercept, which in turn inform the estimates of all the individual slopes and intercepts. Thereby we get sharing of information across individuals, and shrinkage of individual estimates toward the overarching mode. (p. 491)
+> Our goal is to describe each individual with a linear regression, and simultaneously to estimate the typical slope and intercept of the group overall. A key assumption for our analysis is that each individual is representative of the group. Therefore, every individual informs the estimate of the group slope and intercept, which in turn inform the estimates of all the individual slopes and intercepts. Thereby we get sharing of information across individuals, and shrinkage of individual estimates toward the overarching mode (p. 491).
 
-### The model and implementation in ~~JAGS~~ brms.
+### The Model and Implementation in ~~JAGS~~ brms
 
 Kruschke described the model diagram in Figure 17.6 as "a bit daunting" (p. 491). The code to make our version of the diagram is "a bit daunting," too. Just like the code for any other diagram, it's modular. If you're following along with me and making these on your own, just build it up, step by step.
 
-```{r, fig.width = 8.5, fig.height = 6, message = F}
+```{r, fig.width = 8.5, fig.height = 6, message = FALSE}
 # normal density
 p1 <-
   tibble(x = seq(from = -3, to = 3, by = 0.1)) %>% 
@@ -914,7 +923,7 @@ p1 <-
   annotate(geom = "text",
            x = c(0, 1.5), y = 0.6,
            label = c("italic(M)[0]", "italic(S)[0]"), 
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
@@ -931,7 +940,7 @@ p2 <-
   annotate(geom = "text",
            x = 1.5, y = 0.6,
            label = "0*','*~italic(S)[sigma][0]", 
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
@@ -948,7 +957,7 @@ p3 <-
   annotate(geom = "text",
            x = c(0, 1.5), y = 0.6,
            label = c("italic(M)[1]", "italic(S)[1]"), 
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
@@ -965,7 +974,7 @@ p4 <-
   annotate(geom = "text",
            x = 1.5, y = 0.6,
            label = "0*','*~italic(S)[sigma][1]", 
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
@@ -983,7 +992,7 @@ p5 <-
   annotate(geom = "text",
            x = c(0.15, 0.35, 0.625, 0.78), y = 0.55,
            label = "'~'",
-           size = 10, color = bp[1], family = "Times", parse = T) +
+           size = 10, color = bp[1], family = "Times", parse = TRUE) +
   xlim(0, 1) +
   theme_void()
 
@@ -999,7 +1008,7 @@ p6 <-
   annotate(geom = "text",
            x = c(0, 1.5), y = 0.6,
            label = c("mu[0]", "sigma[0]"), 
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
@@ -1016,7 +1025,7 @@ p7 <-
   annotate(geom = "text",
            x = c(0, 1.5), y = .6,
            label = c("mu[1]", "sigma[1]"), 
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
@@ -1035,7 +1044,7 @@ p8 <-
            x = c(0.18, 0.33, 0.64, 0.77), y = 0.55,
            label = c("'~'", "italic(j)", "'~'", "italic(j)"),
            size = c(10, 7, 10, 7), 
-           color = bp[1], family = "Times", parse = T) +
+           color = bp[1], family = "Times", parse = TRUE) +
   xlim(0, 1) +
   theme_void()
 
@@ -1051,19 +1060,18 @@ p9 <-
   annotate(geom = "text",
            x = 0.5, y = 0.6,
            label = "italic(K)",
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
 
 # likelihood formula
 p10 <-
-  tibble(x = 0.5,
-         y = 0.25,
-         label = "beta[0][italic(j)]+beta[1][italic(j)]*italic(x)[italic(i)*'|'*italic(j)]") %>% 
+  tibble(x = 0.5, y = 0.25,
+label = "beta[0][italic(j)]+beta[1][italic(j)]*italic(x)[italic(i)*'|'*italic(j)]") %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = 7, color = bp[1], parse = T, family = "Times") +
+  geom_text(size = 7, color = bp[1], parse = TRUE, family = "Times") +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
   ylim(0, 1) +
   theme_void()
@@ -1080,7 +1088,7 @@ p11 <-
   annotate(geom = "text",
            x = 1.5, y = 0.6,
            label = "0*','*~italic(S)[sigma]", 
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
@@ -1099,11 +1107,11 @@ p12 <-
            x = c(0.3, 0.7, 1.38, 2), y = c(0.92, 0.22, 0.65, 0.6),
            label = c("'~'", "'='", "'='", "'~'"),
            size = 10, 
-           color = bp[1], family = "Times", parse = T) +
+           color = bp[1], family = "Times", parse = TRUE) +
   annotate(geom = "text",
            x = 0.43, y = 0.7,
            label = "nu*minute+1",
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   xlim(0, 3) +
   theme_void()
 
@@ -1119,7 +1127,7 @@ p13 <-
   annotate(geom = "text",
            x = 0, y = 0.6,
            label = "nu~~mu[italic(i)*'|'*italic(j)]~~sigma",
-           size = 7, color = bp[1], family = "Times", parse = T) +
+           size = 7, color = bp[1], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bp[1]))
@@ -1131,7 +1139,7 @@ p14 <-
          label = c("'~'", "italic(i)*'|'*italic(j)")) %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = c(10, 7), color = bp[1], parse = T, family = "Times") +
+  geom_text(size = c(10, 7), color = bp[1], parse = TRUE, family = "Times") +
   geom_segment(x = 0.5, xend = 0.5,
                y = 1, yend = 0, 
                color = bp[1], arrow = my_arrow) +
@@ -1145,7 +1153,7 @@ p15 <-
          label = "italic(y)[italic(i)*'|'*italic(j)]") %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = 7, color = bp[1], parse = T, family = "Times") +
+  geom_text(size = 7, color = bp[1], parse = TRUE, family = "Times") +
   xlim(0, 1) +
   theme_void()
 
@@ -1213,11 +1221,11 @@ Anyway, here's the model `summary()`.
 summary(fit17.4)
 ```
 
-### The posterior distribution: Shrinkage and prediction.
+### The Posterior Distribution: Shrinkage and Prediction
 
-Keeping in the same spirit of [Section 17.2.4][Interpreting the posterior distribution.], we'll make the plots of Figure 17.5 in two ways. First, we'll use our `make_beta_0()` and  `make_beta_1()` functions to transform the model coefficients.
+Keeping in the same spirit of [Section 17.2.4][Interpreting the Posterior Distribution], we'll make the plots of Figure 17.5 in two ways. First, we'll use our `make_beta_0()` and  `make_beta_1()` functions to transform the model coefficients.
 
-```{r, warning = F}
+```{r, warning = FALSE}
 draws <- as_draws_df(fit17.4)
 
 sd_x <- sd(my_data$X)
@@ -1258,20 +1266,22 @@ my_data %>%
              alpha = 1/2) +
   geom_line(aes(group = Subj, color = Subj),
             size = 1/4) +
-  scale_color_manual(values = beyonce_palette(41, n = 25, type = "continuous"), breaks = NULL) +
+  scale_color_manual(values = beyonce_palette(41, n = 25, 
+    type = "continuous"), breaks = NULL) +
   scale_y_continuous(breaks = seq(from = 50, to = 250, by = 50)) +
-  labs(subtitle = eval(substitute(paste("Data from all units with", n_lines, "credible population-level\nregression lines")))) +
+  labs(subtitle = eval(substitute(paste("Data from all units with", 
+    n_lines, "credible population-level\nregression lines")))) +
   coord_cartesian(xlim = c(40, 95),
                   ylim = c(30, 270))
 ```
 
-Recall how we can use `coef()` to extract the `Subj`-specific parameters. But we'll want posterior draws rather than summaries, which requires `summary = F`. It'll take a bit of wrangling to get the output in a tidy format. Once we're there, the plot code will be fairly simple.
+Recall how we can use `coef()` to extract the `Subj`-specific parameters. But we'll want posterior draws rather than summaries, which requires `summary = FALSE`. It'll take a bit of wrangling to get the output in a tidy format. Once we're there, the plot code will be fairly simple.
 
 ```{r, fig.width = 7, fig.height = 6}
 c <-
   # first collect and wrangle the draws for the Subj-level intercept and slopes
-  rbind(coef(fit17.4, summary = F)$Subj[, , "Intercept"],
-        coef(fit17.4, summary = F)$Subj[, , "x_z"]) %>% 
+  rbind(coef(fit17.4, summary = FALSE)$Subj[, , "Intercept"],
+        coef(fit17.4, summary = FALSE)$Subj[, , "x_z"]) %>% 
   data.frame() %>% 
   set_names(1:25) %>% 
   mutate(draw = rep(1:4000, times = 2),
@@ -1305,7 +1315,7 @@ my_data %>%
         type = "continuous"), breaks = NULL) +
   scale_x_continuous(breaks = seq(from = 50, to = 90,  by = 20)) +
   scale_y_continuous(breaks = seq(from = 50, to = 250, by = 100)) +
-  labs(subtitle = "Each unit now has its own bundle of credible regression lines") +
+labs(subtitle = "Each unit has its own bundle of credible regression lines") +
   coord_cartesian(xlim = c(45, 90),
                   ylim = c(50, 270)) +
   facet_wrap(~ Subj %>% factor(., levels = 1:25))
@@ -1329,7 +1339,7 @@ f <-
          # since we only want the fixed effects, we'll use `re_formula` 
          # to maginalize over the random effects
          re_formula = Y_z ~ 1 + X_z,
-         summary = F,
+         summary = FALSE,
          # here we use `ndraws` to subset right from the get go
          ndraws = n_lines) %>% 
   as_tibble() %>% 
@@ -1358,10 +1368,11 @@ p1 <-
              alpha = 1/2) +
   geom_line(aes(group = Subj, color = Subj),
             size = 1/4) +
-  scale_color_manual(values = beyonce_palette(41, n = 25, type = "continuous")) +
+  scale_color_manual(values = beyonce_palette(41, n = 25, 
+    type = "continuous")) +
   scale_y_continuous(breaks = seq(from = 50, to = 250, by = 50)) +
-  labs(subtitle = 
-eval(substitute(paste("Data from all units with", n_lines, "credible population-level\nregression lines")))) +
+  labs(subtitle = eval(substitute(paste("Data from all units with", 
+    n_lines, "credible population-level regression lines")))) +
   coord_cartesian(xlim = c(40, 95),
                   ylim = c(30, 270)) +
   theme(legend.position = "none")
@@ -1385,7 +1396,7 @@ nd <-
 f <-
   fitted(fit17.4,
          newdata = nd,
-         summary = F,
+         summary = FALSE,
          ndraws = n_lines) %>% 
   as_tibble() %>% 
   mutate(draw = 1:n()) %>% 
@@ -1409,13 +1420,14 @@ p2 <-
             color = "grey50", size = 1/4, alpha = 1/5) +
   geom_point(aes(color = Subj)) +
   scale_color_manual(values = beyonce_palette(41, n = 25, 
-        type = "continuous"), breaks = NULL) +
+    type = "continuous"), breaks = NULL) +
   scale_x_continuous(breaks = seq(from = 50, to = 90,  by = 20)) +
   scale_y_continuous(breaks = seq(from = 50, to = 250, by = 100)) +
   labs(subtitle = "Each unit now has its own bundle of credible regression lines") +
   coord_cartesian(xlim = c(45, 90),
                   ylim = c(50, 270)) +
   facet_wrap(~ Subj %>% factor(., levels = 1:25))
+
 
 # combine with patchwork
 p3 <- plot_spacer()
@@ -1429,7 +1441,7 @@ p4 <-
 
 Especially if you're new to these kinds of models, it's easy to get lost in all that code. And for real--the wrangling required for those plots was no joke. The primary difficulty was that we had to convert standardized solutions to unstandardized solutions, which leads to an important distinction. When we used the first method of working with the `as_draws_df()` and `coef()` output, we focused on **transforming the model parameters**. In contrast, when we used the second method of working with the `fitted()` output, we focused instead on **transforming the model predictions and predictor values**. This distinction can be really confusing, at first. Stick with it! There will be times one method is more convenient or intuitive than the other. It's good to have both methods in your repertoire.
 
-## Quadratic trend and weighted data
+## Quadratic Trend and Weighted Data
 
 Quadratic models follow the general form
 
@@ -1437,9 +1449,9 @@ $$y = \beta_0 + \beta_1 x + \beta_2 x^2,$$
 
 where $\beta_2$ is the quadratic term which, when 0, reduces the results to a simple linear model. That's right; the linear model is a special case of the quadratic.
 
-This time the data come from the American Community Survey and Puerto Rico Community Survey. In his footnote #3, Kruschke indicated "Data are from [http://www.census.gov/hhes/www/income/data/Fam_Inc_SizeofFam1.xls](http://www.census.gov/hhes/www/income/data/Fam_Inc_SizeofFam1.xls), retrieved December 11, 2013. Median family income for years 2009-2011." As to our `read_csv()` code, note the `comment` argument.
+This time the data come from the American Community Survey and Puerto Rico Community Survey. In his footnote 3, Kruschke indicated "Data are from [http://www.census.gov/hhes/www/income/data/Fam_Inc_SizeofFam1.xls](http://www.census.gov/hhes/www/income/data/Fam_Inc_SizeofFam1.xls), retrieved December 11, 2013. Median family income for years 2009-2011." As to our `read_csv()` code, note the `comment` argument.
 
-```{r, message = F}
+```{r, message = FALSE}
 my_data <- read_csv("~/Desktop/DBDA/data.R/IncomeFamszState3yr.csv",
                     comment = "#")
 
@@ -1488,7 +1500,7 @@ print(fit17.5)
 
 Do see that `Ifamily_size_zE2` row? That's the summary of our quadratic term.
 
-### Results and interpretation.
+### Results and Interpretation
 
 A new model type requires a different approach to un-standardizing our standardized coefficients. Based on Equation 17.3, we can convert our coefficients using the formulas
 
@@ -1502,8 +1514,8 @@ We'll make new custom functions to use them.
 
 ```{r}
 make_beta_0 <- function(zeta_0, zeta_1, zeta_2, sd_x, sd_y, m_x, m_y) {
-         zeta_0 * sd_y + m_y - zeta_1 * m_x * sd_y / sd_x + zeta_2 * m_x^2 * 
-        sd_y / sd_x^2}
+  zeta_0 * sd_y + m_y - zeta_1 * m_x * sd_y / sd_x + zeta_2 * 
+    m_x^2 * sd_y / sd_x^2}
 
 make_beta_1 <- function(zeta_1, zeta_2, sd_x, sd_y, m_x) { 
   zeta_1 * sd_y / sd_x - 2 * zeta_2 * m_x * sd_y / sd_x^2}
@@ -1520,7 +1532,7 @@ sd_y <- sd(my_data$MedianIncome)
 
 Now we'll extract our posterior draws and make the conversions.
 
-```{r, fig.width = 7, fig.height = 6, warning = F}
+```{r, fig.width = 7, fig.height = 6, warning = FALSE}
 draws <- 
   as_draws_df(fit17.5) %>% 
   mutate(b_0 = make_beta_0(zeta_0 = b_Intercept,
@@ -1585,9 +1597,9 @@ Like before, we'll extract the group-level coefficients (i.e., those specific to
 ```{r}
 c <-
   # first collect and wrangle the draws for the State-level intercept and slopes
-  rbind(coef(fit17.5, summary = F)$State[, , "Intercept"],
-        coef(fit17.5, summary = F)$State[, , "family_size_z"],
-        coef(fit17.5, summary = F)$State[, , "Ifamily_size_zE2"]) %>% 
+  rbind(coef(fit17.5, summary = FALSE)$State[, , "Intercept"],
+        coef(fit17.5, summary = FALSE)$State[, , "family_size_z"],
+        coef(fit17.5, summary = FALSE)$State[, , "Ifamily_size_zE2"]) %>% 
   data.frame() %>% 
   mutate(draw  = rep(1:4000, times = 3),
          param = rep(c("Intercept", "family_size_z", "Ifamily_size_zE2"), 
@@ -1610,7 +1622,8 @@ c <-
          b_2 = make_beta_2(zeta_2 = Ifamily_size_zE2,
                            sd_x   = sd_x,
                            sd_y   = sd_y)) %>% 
-  # we just want the first 25 states, from Alabama through Mississippi, so we'll `filter()`
+  # we just want the first 25 states, from Alabama through Mississippi, 
+  # so we'll `filter()`
   filter(State <= "Mississippi")
 
 str(c)
@@ -1647,9 +1660,10 @@ my_data %>%
             size  = 1/4, alpha = 1/5, color = "grey67") +
   geom_point(aes(color = State)) +
   geom_line(aes(color = State)) +
-  scale_color_manual(values = beyonce_palette(41, n = 52, type = "continuous"), breaks = NULL) +
+  scale_color_manual(values = beyonce_palette(41, n = 52, 
+    type = "continuous"), breaks = NULL) +
   scale_x_continuous("Family size", breaks = 1:8) +
-  labs(subtitle = "Each State now has its own bundle of credible regression curves.",
+  labs(subtitle = "Each State has its own bundle of credible regression curves",
        y = "Median income") +
   coord_cartesian(xlim = c(1, 8),
                   ylim = c(0, 150000)) +
@@ -1675,26 +1689,26 @@ as_draws_df(fit17.5) %>%
 
 I'm guessing the distinction in our $\nu$ distribution and that in the text is our use of the `se()` syntax in the `brm()` `formula`. If you have a better explanation, [share it](https://github.com/ASKurz/Doing-Bayesian-Data-Analysis-in-brms-and-the-tidyverse/issues).
 
-### Further extensions.
+### Further Extensions
 
 Kruschke discussed the ease with which users of Bayesian software might specify nonlinear models. Check out Bürkner's [-@Bürkner2021Non_linear] vignette, [*Estimating non-linear models with brms*](https://CRAN.R-project.org/package=brms/vignettes/brms_nonlinear.html), for more on the topic. Though I haven't used it, I believe it is also possible to use the $t$ distribution to model group-level variation in **brms** (see [this GitHub discussion](https://github.com/paul-buerkner/brms/issues/231) for details).
 
-## Procedure and perils for expanding a model
+## Procedure and Perils for Expanding a Model
 
 Across several chapters, we've already dipped our toes into posterior predictive checks. For more on the PPC "double dipping" issue, check out Gelman's [*Discussion with Sander Greenland on posterior predictive checks*](http://andrewgelman.com/2014/08/11/discussion-sander-greenland-posterior-predictive-checks/) or Simpson's [*Touch me, I want to feel your data*](http://andrewgelman.com/2017/09/07/touch-want-feel-data/), which is itself connected to @gabry2019visualization, [*Visualization in Bayesian workflow*](https://arxiv.org/abs/1709.01449).
 
-## Session info {-}
+## Session Info {-}
 
 ```{r}
 sessionInfo()
 ```
 
-```{r, echo = F}
+```{r, echo = FALSE}
 # remove the objects
 rm(n_draw, d, curves, beyonce_palettes, bp, p1, p2, my_arrow, p3, p4, p5, p6, p7, p8, p9, p10, layout, HtWtDataGenerator, standardize, fit17.1, stanvars, fit17.2, draws, make_beta_0, make_beta_1, sd_x, sd_y, m_x, m_y, n_lines, rope, text, beta_0_sigma, beta_1_sigma, fit17.3, nd, my_data, p11, p12, p13, p14, p15, fit17.4, c, f, fit17.5, make_beta_2)
 ```
 
-```{r, echo = F, message = F, warning = F, results = "hide"}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)

@@ -14,7 +14,7 @@ knitr::opts_chunk$set(collapse = TRUE,
 
 
 
-```{r, echo = F, eval = F}
+```{r, echo = FALSE, eval = FALSE}
 # (PART) ALL THE FUNDAMENTALS APPLIED TO INFERRING A BINOMIAL PROBABILITY {-}
 
 # > In the next few chapters, we will develop all the foundational concepts and methods of Bayesian data analysis, which are applied to the simplest type of data. Because of the simplicity of the data, we can focus on the Bayesian methods and scaffold the concepts clearly and efficiently. The subsequent part of the book applies the methods developed in this part to more complex data structures. [@kruschkeDoingBayesianData2015, p. 121]
@@ -23,15 +23,15 @@ knitr::opts_chunk$set(collapse = TRUE,
 
 # Inferring a Binomial Probability via Exact Mathematical Analysis
 
-> This chapter presents an example of how to do Bayesian inference using pure analytical mathematics without any approximations. Ultimately, we will not use the pure analytical approach for complex applications, but this chapter is important for two reasons. *First*, the relatively simple mathematics in this chapter nicely reveal the underlying concepts of Bayesian inference on a continuous parameter. The simple formulas show how the continuous allocation of credibility changes systematically as data accumulate. The examples provide an important conceptual foundation for subsequent approximation methods, because the examples give you a clear sense of what is being approximated. *Second*, the distributions introduced in this chapter, especially the beta distribution, will be used repeatedly in subsequent chapters. [@kruschkeDoingBayesianData2015, 123, *emphasis* added]
+> This chapter presents an example of how to do Bayesian inference using pure analytical mathematics without any approximations. Ultimately, we will not use the pure analytical approach for complex applications, but this chapter is important for two reasons. *First*, the relatively simple mathematics in this chapter nicely reveal the underlying concepts of Bayesian inference on a continuous parameter. The simple formulas show how the continuous allocation of credibility changes systematically as data accumulate. The examples provide an important conceptual foundation for subsequent approximation methods, because the examples give you a clear sense of what is being approximated. *Second*, the distributions introduced in this chapter, especially the beta distribution, will be used repeatedly in subsequent chapters [@kruschkeDoingBayesianData2015, 123; *emphasis* added].
 
-## The likelihood function: The Bernoulli distribution
+## The Likelihood Function: The Bernoulli Distribution
 
 If we denote a set of possible outcomes as $\{y_i\}$  Kruschke's Bernoulli likelihood function for a set of $N$ trials follows the form
 
-$$p(\{y_i\} | \theta) = \theta^z \cdot (1 - \theta) ^ {N - z},$$
+$$p \left( \{ y_i \} \mid \theta \right) = \theta^z \cdot (1 - \theta) ^ {N - z},$$
 
-where $z$ is the number of 1's in the data (i.e., heads in a series of coin flips) and the sole parameter a given observation will be a 1 is $\theta$ (i.e., the probability; $p(y_i = 1 | \theta)$).
+where $z$ is the number of 1's in the data (i.e., heads in a series of coin flips) and the sole parameter a given observation will be a 1 is $\theta$ (i.e., the probability; $p \left( y_i = 1 \mid \theta \right)$).
 
 If you follow that equation closely, here is how we might express it in **R**.
 
@@ -50,20 +50,20 @@ bernoulli_likelihood <- function(theta, data) {
 
 This will come in handy in just a bit.
 
-## A description of credibilities: The beta distribution
+## A Description of Credibilities: The Beta Distribution
 
 > In this chapter, we use purely mathematical analysis, with no numerical approximation, to derive the mathematical form of the posterior credibilities of parameter values. To do this, we need a mathematical description of the prior allocation of credibilities...
 >
-> In principle, we could use any probability density function supported on the interval [0, 1]. When we intend to apply Bayes' rule (Equation 5.7, p. 106), however, there are two desiderata for mathematical tractability. First, it would be convenient if the product of $p(y | \theta)$ and $p(\theta)$, which is in the numerator of Bayes' rule, results in a function of the same form as $p(\theta)$... Second, we desire the denominator of Bayes' rule (Equation 5.9, p. 107), namely $\int \text d \; \theta p(y | \theta) p(\theta)$, to be solvable analytically. This quality also depends on how the form of the function $p(\theta)$ relates to the form of the function $p(y | \theta)$. When the forms of $p(y | \theta)$ and $p(\theta)$ combine so that the posterior distribution has the same form as the prior distribution, then $p(\theta)$ is called a *conjugate prior* for $p(y | \theta)$. (p. 127 *emphasis* in the original)
+> In principle, we could use any probability density function supported on the interval [0, 1]. When we intend to apply Bayes' rule (Equation 5.7, p. 106), however, there are two desiderata for mathematical tractability. First, it would be convenient if the product of $p \left(y \mid \theta \right)$ and $p(\theta)$, which is in the numerator of Bayes' rule, results in a function of the same form as $p(\theta)$... Second, we desire the denominator of Bayes' rule (Equation 5.9, p. 107), namely $\int \text d \; \theta p \left( y \mid \theta \right) p(\theta)$, to be solvable analytically. This quality also depends on how the form of the function $p(\theta)$ relates to the form of the function $p \left( y \mid \theta \right)$. When the forms of $p \left( y \mid \theta \right)$ and $p(\theta)$ combine so that the posterior distribution has the same form as the prior distribution, then $p(\theta)$ is called a *conjugate prior* for $p \left( y \mid \theta \right)$. (Page 127; *emphasis* in the original.)
 
 When we want a conjugate prior for $\theta$ of the Bernoulli likelihood, the *beta distribution* is a handy choice. Beta has two parameters, $a$ and $b$ (also sometimes called $\alpha$ and $\beta$), and the density is defined as
 
 \begin{align*}
-p(\theta | a, b) & = \operatorname{beta} (\theta | a, b) \\
-                 & = \frac{\theta^{(a - 1)} \; (1 - \theta)^{(b - 1)}}{B(a, b)},
+p \left( \theta \mid a, b \right) &= \operatorname{beta} \left( \theta \mid a, b \right) \\
+&= \frac{\theta^{(a - 1)} \; (1 - \theta)^{(b - 1)}}{{\rm B}(a, b)},
 \end{align*}
 
-where $B(a, b)$ is a normalizing constant, keeping the results in a probability metric, and $B(\cdot)$ is the Beta function. Kruschke then clarified that the beta distribution and the Beta function are not the same. In **R**, we use the beta density with the `dbeta()` function, whereas we use the Beta function with `beta()`. In this project, we'll primarily use `dbeta()`. But to give a sense, notice that when given the same input for $a$ and $b$, the two functions return very different values.
+where ${\rm B}(a, b)$ is a normalizing constant, keeping the results in a probability metric, and ${\rm B}(\cdot)$ is the Beta function. Kruschke then clarified that the beta distribution and the Beta function are not the same. In **R**, we use the beta density with the `dbeta()` function, whereas we use the Beta function with `beta()`. In this project, we'll primarily use `dbeta()`. But to give a sense, notice that when given the same input for $a$ and $b$, the two functions return very different values.
 
 ```{r}
 theta <- 0.5
@@ -84,7 +84,7 @@ You can learn more about the `dbeta()` function [here](https://www.rdocumentatio
 
 Before we make Figure 6.1, we'll need some data.
 
-```{r, fig.width = 6, fig.height = 6, warning = F, message = F}
+```{r, fig.width = 6, fig.height = 6, warning = FALSE, message = FALSE}
 # library(tidyverse)
 library(dplyr)
 library(reshape2)
@@ -107,7 +107,7 @@ head(d)
 
 Now we're ready for our Figure 6.1.
 
-```{r, fig.width = 6, fig.height = 6, warning = F, message = F}
+```{r, fig.width = 6, fig.height = 6, warning = FALSE, message = FALSE}
 library(ggplot2)
 d %>% 
   ggplot(aes(x = x, group = group)) +
@@ -116,7 +116,7 @@ d %>%
             color = "grey50", size = 1.25) +
   scale_x_continuous(expression(theta), breaks = c(0, 0.5, 1)) +
   coord_cartesian(ylim = c(0, 3)) +
-  labs(title = "Examples of the beta distribution",
+  labs(title = "Examples of the beta Distribution",
        y = expression(p(theta*"|"*a*", "*b))) +
   theme(panel.grid = element_blank()) +
   facet_grid(b ~ a)
@@ -124,11 +124,11 @@ d %>%
 
 > Notice that as $a$ gets bigger (left to right across columns of Figure 6.1), the bulk of the distribution moves rightward over higher values of $\theta$, but as $b$ gets bigger (top to bottom across rows of Figure 6.1), the bulk of the distribution moves leftward over lower values of $\theta$. Notice that as $a$ and $b$ get bigger together, the beta distribution gets narrower. (p. 127).
 
-We have a lot of practice with the beta distribution waiting for us in the chapters to come. If you like informal tutorials, you might also check out [Karin Knudson](https://twitter.com/karinknudson)'s nice blog post, [*Beta distributions, Dirichlet distributions and Dirichlet processes*](https://karinknudson.com/dirichletprocesses.html).
+We have a lot of practice with the beta distribution waiting for us in the chapters to come. If you like informal tutorials, you might also check out [Karin Knudson](https://twitter.com/karinknudson)'s nice blog post, [*Beta distributions, Dirichlet distributions, and Dirichlet processes*](https://karinknudson.com/dirichletprocesses.html).
 
-### Specifying a beta prior.
+### Specifying a Beta Prior
 
-> It is useful to know the central tendency and spread of the beta distribution expressed in terms of $a$ and $b$. It turns out that the mean of the $\operatorname{beta}(\theta | a, b)$ distribution is $\mu = a / (a + b)$ and the mode is $\omega = (a - 1) / (a + b - 2)$ for $a > 1$ and $b > 1$ ($\mu$ is Greek letter mu and $\omega$ is Greek letter omega)$\ldots$ The spread of the beta distribution is related to the "concentration" $\kappa = a + b$ ($\kappa$ is Greek letter kappa). You can see from Figure 6.1 that as $\kappa = a + b$ gets larger, the beta distribution gets narrower or more concentrated. (p. 129)
+> It is useful to know the central tendency and spread of the beta distribution expressed in terms of $a$ and $b$. It turns out that the mean of the $\operatorname{beta} \left( \theta \mid a, b \right)$ distribution is $\mu = a / (a + b)$ and the mode is $\omega = (a - 1) / (a + b - 2)$ for $a > 1$ and $b > 1$ ($\mu$ is Greek letter mu and $\omega$ is Greek letter omega)$\ldots$ The spread of the beta distribution is related to the "concentration" $\kappa = a + b$ ($\kappa$ is Greek letter kappa). You can see from Figure 6.1 that as $\kappa = a + b$ gets larger, the beta distribution gets narrower or more concentrated. (p. 129)
 
 As such, if you'd like to specify a beta distribution in terms of $\omega$ and $\kappa$, it'd follow the form
 
@@ -228,13 +228,13 @@ beta_param$b
 
 We'll find this trick quite handy in the sections to come.
 
-## The posterior beta
+## The Posterior Beta
 
 I'm not going to reproduce all of Formula 6.8. But this a fine opportunity to re-express Bayes' rule in terms of $z$ and $N$,
 
-$$p(\theta | z, N) = \frac{p(z, N | \theta) \; p(\theta)}{p(z, N)}.$$
+$$p \left( \theta \mid z, N \right) = \frac{p \left( z, N \mid \theta \right) \; p(\theta)}{p(z, N)}.$$
 
-### Posterior is compromise of prior and likelihood.
+### The Posterior is Compromised of the Prior and the Likelihood
 
 You might wonder how Kruschke computed the HDI values for Figure 6.3. Remember our `hdi_of_icdf()` function from back in Chapter 4? Yep, that's how. Here's that code, again.
 
@@ -347,7 +347,7 @@ text <-
 
 Finally, here's our Figure 6.3.
 
-```{r, warning = F, message = F, fig.width = 6, fig.height = 5}
+```{r, warning = FALSE, message = FALSE, fig.width = 6, fig.height = 5}
 library(cowplot)
 
 d %>% 
@@ -381,7 +381,7 @@ Note how we loaded the [**cowplot** package](https://wilkelab.org/cowplot) [@R-c
 
 ## Examples
 
-### Prior knowledge expressed as a beta distribution.
+### Prior Knowledge Expressed as a Beta Distribution
 
 If you flip an unaltered freshly-minted coin 20 times and end up with 17 heads, 85% of those trials are heads.
 
@@ -507,7 +507,7 @@ post_hdi
 
 If you double back to page 129 in the text, you'll see Kruschke defined the mode of a beta density as
 
-$$\omega_\text{beta} = (a - 1) / (a + b - 2)$$
+$$\omega_\text{beta} = \frac{a - 1}{a + b - 2}$$
 
 whenever $a > 1$ and $b > 1$. Thus we can compute the modes for our prior and posterior densities like this.
 
@@ -699,13 +699,13 @@ Because both the $a$ and $b$ parameters for our beta prior are 1, we can't use t
 (z + beta_param$a - 1) / (z + beta_param$a + n - z + beta_param$b - 2)
 ```
 
-### Prior knowledge that cannot be expressed as a beta distribution.
+### Prior Knowledge that Cannot be Expressed as a Beta Distribution
 
 > The beauty of using a beta distribution to express prior knowledge is that the posterior distribution is again exactly a beta distribution, and therefore, no matter how much data we include, we always have an exact representation of the posterior distribution and a simple way of computing it. But not all prior knowledge can be expressed by a beta distribution, because the beta distribution can only be in the forms illustrated by Figure 6.1. If the prior knowledge cannot be expressed as a beta distribution, then we must use a different method to derive the posterior. In particular, we might revert to grid approximation as was explained in Section 5.5 (p. 116).
 
 For such a small section in the text, the underlying code is a bit of a beast. Fir kicks, we'll practice two ways. First we'll follow the code Kruschke used in the text. Our second attempt will be in a more **tidyverse** sort of way.
 
-#### Figure 6.5 in Kruschke style.
+#### Figure 6.5 in Kruschke's Style
 
 ```{r, fig.width = 4, fig.height = 6}
 # Fine teeth for Theta
@@ -952,7 +952,7 @@ BernGrid = function( Theta , pTheta , Data , plotType=c("Points","Bars")[2] ,
 
 You plot using Kruschke's method, like so.
 
-```{r, fig.width = 5, fig.height = 6, warning = F, message = F}
+```{r, fig.width = 5, fig.height = 6, warning = FALSE, message = FALSE}
 Data <- c(rep(0, 13), rep(1, 14))
 
 BernGrid(theta, p_theta, Data, plotType = "Bars",
@@ -961,7 +961,7 @@ BernGrid(theta, p_theta, Data, plotType = "Bars",
 
 The method works fine. But, I'm not a fan. It's clear Kruschke put a lot of thought into the `BernGrid()` function. However, its inner workings are too opaque, for me, which leads to our next section...
 
-#### Figure 6.5 in **tidyverse** style.
+#### Figure 6.5 in the **tidyverse** Style
 
 Here we'll be plotting with **ggplot2**. But let's first get the data into a tibble.
 
@@ -1027,7 +1027,7 @@ With our nice tibble in hand, we'll plot the prior, likelihood, and posterior on
 
 Note how we saved each the plots as objects. There are many ways to combine multiple ggplots, such as stacking them one atop another like they're presented in Figure 6.5. One of the earliest methods I learned was the good old [`multiplot()` function](http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/). For a long time I relied on `grid.arrange()` from the [**gridExtra** package](https://CRAN.R-project.org/package=gridExtra) [@R-gridExtra]. But it's hard to beat the elegant syntax from [Thomas Lin Pedersen](https://twitter.com/thomasp85)'s [-@R-patchwork] [**patchwork** package](https://patchwork.data-imaginist.com/).
 
-```{r, fig.width = 5, fig.height = 6, warning = F, message = F}
+```{r, fig.width = 5, fig.height = 6, warning = FALSE, message = FALSE}
 library(patchwork)
 
 p1 / p2 / p3
@@ -1043,17 +1043,17 @@ We could have taken this same approach to combine all our subplots from the thre
 
 And if you're using this project, I imagine that's exactly what you're looking for. We want to use the power of a particular kind of MCMC, Hamiltonian Monte Carlo, through the interface of the [**brms** package](https://github.com/paul-buerkner/brms). Get excited. It's coming.
 
-## Session info {-}
+## Session Info {-}
 
 ```{r}
 sessionInfo()
 ```
 
-```{r, echo = F}
+```{r, echo = FALSE}
 rm(bernoulli_likelihood, theta, a, b, length, d, betaABfromMeanKappa, betaABfromModeKappa, betaABfromMeanSD, beta_param, hdi_of_icdf, n, z, proportion_heads, prior_mean, posterior_mean, trial_data, levels, line, text, prior_hdi, post_hdi, p_theta, BernGrid, Data, p1, p2, p3)
 ```
 
-```{r, echo = F, message = F, warning = F, results = "hide"}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 

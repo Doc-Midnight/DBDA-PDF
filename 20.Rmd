@@ -15,11 +15,11 @@ knitr::opts_chunk$set(collapse = TRUE,
 
 # Metric Predicted Variable with Multiple Nominal Predictors
 
-> This chapter considers data structures that consist of a metric predicted variable and two (or more) nominal predictors. This chapter extends ideas introduced in the previous chapter, so please read the previous chapter if you have not already...
+> This chapter considers data structures that consist of a metric predicted variable and two (or more) nominal predictors. This chapter extends ideas introduced in the previous chapter, so please read the previous chapter if you have not already$\ldots$
 >
-> The traditional treatment of this sort of data structure is called multifactor analysis of variance (ANOVA). Our Bayesian approach will be a hierarchical generalization of the traditional ANOVA model. The chapter also considers generalizations of the traditional models, because it is straight forward in Bayesian software to implement heavy-tailed distributions to accommodate outliers, along with hierarchical structure to accommodate heterogeneous variances in the different groups. [@kruschkeDoingBayesianData2015, pp. 583--584]
+> The traditional treatment of this sort of data structure is called multifactor analysis of variance (ANOVA). Our Bayesian approach will be a hierarchical generalization of the traditional ANOVA model. The chapter also considers generalizations of the traditional models, because it is straight forward in Bayesian software to implement heavy-tailed distributions to accommodate outliers, along with hierarchical structure to accommodate heterogeneous variances in the different groups [@kruschkeDoingBayesianData2015, pp. 583--584].
 
-## Describing groups of metric data with multiple nominal predictors
+## Describing Groups of Metric Data with Multiple Nominal Predictors
 
 Quick reprise:
 
@@ -33,19 +33,19 @@ Quick reprise:
 > The deflections within factors and within the interaction are constrained to sum to zero:
 >
 > \begin{align*}
-> \sum_j \beta_{1[j]} = 0                                &&& \text{and} && \sum_k \beta_{2[k]} = 0 \;\;\; \text{and} \\
-> \sum_j \beta_{1 \times 2[j, k]} = 0 \text{ for all } k &&& \text{and} && \sum_k \beta_{1 \times 2[j, k]} = 0 \text{ for all } j
+> \sum_j \beta_{1[j]} = 0 \; , &&&&& \sum_k \beta_{2[k]} = 0 \; ,  \\
+> \sum_j \beta_{1 \times 2[j, k]} = 0 \text{ for all } k \; \text{, and} &&&&& \sum_k \beta_{1 \times 2[j, k]} = 0 \text{ for all } j \; .
 > \end{align*}
 >
-> ([these equations] are repetitions of Equations 15.9 and 15.10, p. 434). The actual data are assumed to be randomly distributed around the predicted value. (pp. 584--585)
+> ([these equations] are repetitions of Equations 15.9 and 15.10, p. 434). The actual data are assumed to be randomly distributed around the predicted value (pp. 584--585).
 
-### Interaction.
+### Interaction
 
-> An important concept of models with multiple predictors is interaction. Interaction means that the effect of a predictor depends on the level of another predictor. A little more technically, interaction is what is left over after the main effects of the factors are added: interaction is the nonadditive influence of the factors. (p. 585)
+> An important concept of models with multiple predictors is interaction. Interaction means that the effect of a predictor depends on the level of another predictor. A little more technically, interaction is what is left over after the main effects of the factors are added: interaction is the nonadditive influence of the factors (p. 585).
 
 Here are the data necessary for our version of Figure 20.1, which displays an interaction of two 2-level factors.
 
-```{r, message = F, warning = F}
+```{r, message = FALSE, warning = FALSE}
 library(tidyverse)
 
 grand_mean            <- 5
@@ -57,11 +57,12 @@ nonadditive_component <- -1
   d <-
   tibble(x1 = rep(c(-1, 1), each = 2),
          x2 = rep(c(1, -1), times = 2)) %>% 
-  mutate(mu_additive = grand_mean + (x1 * deflection_1) + (x2 * deflection_2)) %>% 
+  mutate(mu_additive = grand_mean + (x1 * deflection_1) + 
+           (x2 * deflection_2)) %>% 
   mutate(mu_multiplicative = mu_additive + (x1 * x2 * nonadditive_component),
-         # we'll need this to accommodate `position = "dodge"` within `geom_col()`
+ # we'll need this to accommodate `position = "dodge"` within `geom_col()`
          x1_offset         = x1 + x2 * -0.45,
-         # we'll need this for the fill
+ # we'll need this for the fill
          x2_c              = factor(x2, levels = c(1, -1)))
 )
 ```
@@ -70,7 +71,7 @@ There's enough going on with the lines, arrows, and titles across the three pane
 
 Before we make `p`, let's talk color and theme. For this chapter, we'll carry forward our practice from [Chapter 19][Metric Predicted Variable with One Nominal Predictor] and take our color palette from the **palettetown** package. Our color palette will be #15, which is based on [Beedrill](https://www.pokemon.com/us/pokedex/beedrill).
 
-```{r, warning = F, message = F, fig.height = 3.5}
+```{r, warning = FALSE, message = FALSE, fig.height = 3.5}
 library(palettetown)
 
 scales::show_col(pokepal(pokemon = 15))
@@ -80,7 +81,7 @@ bd <- pokepal(pokemon = 15)
 bd
 ```
 
-Also like in the last chapter, our overall plot theme will be based on the default `theme_grey()` with a good number of adjustments. This time, it will have more of a [`theme_black()`](https://jonlefcheck.net/2013/03/11/black-theme-for-ggplot2-2/) vibe. 
+Similar to the last chapter, our overall plot theme will be based on the default `theme_grey()` with a good number of adjustments. This time, it will have more of a [`theme_black()`](https://jonlefcheck.net/2013/03/11/black-theme-for-ggplot2-2/) vibe. 
 
 ```{r}
 theme_set(
@@ -123,7 +124,7 @@ p
 
 Now we have `p`, we'll add panel-specific elements to it, which we'll save as individual objects, `p1`, `p2`, and `p3`. That's step 2. Then for step 3, we'll bring them all together with **patchwork**.
 
-```{r, fig.height = 3, fig.width = 8.25, warning = F, message = F}
+```{r, fig.height = 3, fig.width = 8.25, warning = FALSE, message = FALSE}
 # deflection from additive
 p1 <-
   p +
@@ -169,21 +170,21 @@ library(patchwork)
 p1 + p2 + p3
 ```
 
-And in case it's not clear, "the average deflection from baseline due to a predictor... is called the main effect of the predictor. The main effects of the predictors correspond to the dashed lines in the left panel of Figure 20.1" (p. 587). And further
+In case it's not clear, "the average deflection from baseline due to a predictor$\ldots$ is called the main effect of the predictor. The main effects of the predictors correspond to the dashed lines in the left panel of Figure 20.1" (p. 587). Further,
 
-> The left panel of Figure 20.1 highlights the interaction as the nonadditive component, emphasized by the heavy vertical arrows that mark the departure from additivity. The middle panel of Figure 20.1 highlights the interaction by emphasizing that the effect of $x_1$ depends on the level of $x_2$. The heavy lines mark the effect of $x_1$, that is, the changes from level 1 of $x_1$ to level 2 of $x_1$. Notice that the heavy lines have different slopes: The heavy line for level 1 of $x_2$ has a shallower slope than the heavy line for level 2 of $x_2$. The right panel of Figure 20.1 highlights the interaction by emphasizing that the effect of $x_2$ depends on the level of $x_1$. (p. 587)
+> [t]he left panel of Figure 20.1 highlights the interaction as the nonadditive component, emphasized by the heavy vertical arrows that mark the departure from additivity. The middle panel of Figure 20.1 highlights the interaction by emphasizing that the effect of $x_1$ depends on the level of $x_2$. The heavy lines mark the effect of $x_1$, that is, the changes from level 1 of $x_1$ to level 2 of $x_1$. Notice that the heavy lines have different slopes: The heavy line for level 1 of $x_2$ has a shallower slope than the heavy line for level 2 of $x_2$. The right panel of Figure 20.1 highlights the interaction by emphasizing that the effect of $x_2$ depends on the level of $x_1$ (p. 587).
 
-### Traditional ANOVA.
+### Traditional ANOVA
 
-> As was explained in [Section 19.2][Traditional analysis of variance] (p. 556), the terminology, "analysis of variance," comes from a decomposition of overall data variance into within-group variance and between-group variance... The Bayesian approach is not ANOVA, but is analogous to ANOVA. Traditional ANOVA makes decisions about equality of groups (i.e., null hypotheses) on the basis of $p$ values using a null hypothesis that assumes (i) the data are normally distributed within groups, and (ii) the standard deviation of the data within each group is the same for all groups. The second assumption is sometimes called "homogeneity of variance." The entrenched precedent of ANOVA is why basic models of grouped data make those assumptions, and why the basic models presented in this chapter will also make those assumptions. Later in the chapter, those constraints will be relaxed. (pp. 587--588)
+> As was explained in [Section 19.2][Traditional Analysis of Variance] (p. 556), the terminology, "analysis of variance," comes from a decomposition of overall data variance into within-group variance and between-group variance... The Bayesian approach is not ANOVA, but is analogous to ANOVA. Traditional ANOVA makes decisions about equality of groups (i.e., null hypotheses) on the basis of $p$ values using a null hypothesis that assumes (i) the data are normally distributed within groups, and (ii) the standard deviation of the data within each group is the same for all groups. The second assumption is sometimes called "homogeneity of variance." The entrenched precedent of ANOVA is why basic models of grouped data make those assumptions, and why the basic models presented in this chapter will also make those assumptions. Later in the chapter, those constraints will be relaxed (pp. 587--588).
 
-## Hierarchical Bayesian approach
+## Hierarchical Bayesian Approach
 
 "Our goal is to estimate the main and interaction deflections, and other parameters, based on the observed data" (p. 588).
 
 Figure 20.2 will provides a generic model diagram of how this can work.
 
-```{r, fig.width = 8, fig.height = 6, message = F}
+```{r, fig.width = 8, fig.height = 6, message = FALSE}
 # bracket
 p1 <-
   tibble(x = 0.99,
@@ -224,7 +225,7 @@ p3 <-
            x = c(0, 1.45), y = 0.6,
            hjust = c(0.5, 0),
            label = c("italic(M)[0]", "italic(S)[0]"), 
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -242,7 +243,7 @@ p4 <-
            x = c(0, 1.15), y = 0.6,
            label = c("0", "sigma[beta][1]"), 
            hjust = c(0.5, 0),
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -260,7 +261,7 @@ p5 <-
            x = c(0, 1.15), y = 0.6,
            label = c("0", "sigma[beta][2]"), 
            hjust = c(0.5, 0),
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -278,7 +279,7 @@ p6 <-
            x = c(0, 0.67), y = 0.6,
            hjust = c(.5, 0),
            label = c("0", "sigma[beta][1%*%2]"), 
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -294,20 +295,24 @@ p7 <-
   geom_segment(arrow = my_arrow, color = bd[3]) +
   annotate(geom = "text",
            x = c(0.025, 0.23, 0.30, 0.52, 0.585, 0.81, 0.91), y = 0.5,
-           label = c("'~'", "'~'", "italic(j)", "'~'", "italic(k)", "'~'", "italic(jk)"),
+           label = c("'~'", "'~'", "italic(j)", "'~'", "italic(k)", "'~'", 
+                     "italic(jk)"),
            size = c(10, 10, 7, 10, 7, 10, 7), 
-           color = bd[3], family = "Times", parse = T) +
+           color = bd[3], family = "Times", parse = TRUE) +
   xlim(0, 1) +
   theme_void()
 
 # likelihood formula
 p8 <-
-  tibble(x = 0.5,
-         y = 0.25,
-         label = "beta[0]+sum()[italic(j)]*beta[1]['['*italic(j)*']']*italic(x)[1]['['*italic(j)*']'](italic(i))+sum()[italic(k)]*beta[2]['['*italic(k)*']']*italic(x)[2]['['*italic(k)*']'](italic(i))+sum()[italic(jk)]*beta[1%*%2]['['*italic(jk)*']']*italic(x)[1%*%2]['['*italic(jk)*']'](italic(i))") %>% 
+  tibble(x = 0.5, y = 0.25,
+  label = "beta[0]+sum()[italic(j)]*beta[1]['['*italic(j)*']']*
+  italic(x)[1]['['*italic(j)*']'](italic(i))+sum()[italic(k)]*
+  beta[2]['['*italic(k)*']']*italic(x)[2]['['*italic(k)*']'](italic(i))+
+  sum()[italic(jk)]*beta[1%*%2]['['*italic(jk)*']']*
+  italic(x)[1%*%2]['['*italic(jk)*']'](italic(i))") %>% 
  
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(hjust = 0.5, size = 7, color = bd[3], parse = T, 
+  geom_text(hjust = 0.5, size = 7, color = bd[3], parse = TRUE, 
             family = "Times") +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
   ylim(0, 1) +
@@ -325,7 +330,7 @@ p9 <-
   annotate(geom = "text",
            x = 1.5, y = 0.6,
            label = "0*','*~italic(S)[sigma]", 
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -343,7 +348,7 @@ p10 <-
            x = c(0, 1.15), y = 0.6,
            label = c("mu[italic(i)]", "sigma[italic(y)]"), 
            hjust = c(0.5, 0),
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -355,7 +360,7 @@ p11 <-
          label = "'='") %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = 10, color = bd[3], parse = T, family = "Times") +
+  geom_text(size = 10, color = bd[3], parse = TRUE, family = "Times") +
   geom_segment(x = 0.5, xend = 0.5,
                y = 1, yend = 0.1, 
                arrow = my_arrow, color = bd[3]) +
@@ -369,7 +374,7 @@ p12 <-
          label = "'~'") %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = 10, color = bd[3], parse = T, family = "Times") +
+  geom_text(size = 10, color = bd[3], parse = TRUE, family = "Times") +
   geom_segment(x = 0.79, xend = 0.4,
                y = 1, yend = 0.2, 
                arrow = my_arrow, color = bd[3]) +
@@ -384,7 +389,7 @@ p13 <-
   
   ggplot(aes(x = x, y = y, label = label)) +
   geom_text(size = c(10, 7), 
-            color = bd[3], parse = T, family = "Times") +
+            color = bd[3], parse = TRUE, family = "Times") +
   geom_segment(x = 0.5, xend = 0.5,
                y = 1, yend = 0, 
                arrow = my_arrow, color = bd[3]) +
@@ -398,7 +403,7 @@ p14 <-
          label = "italic(y[i])") %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = 7, color = bd[3], parse = T, family = "Times") +
+  geom_text(size = 7, color = bd[3], parse = TRUE, family = "Times") +
   xlim(0, 1) +
   theme_void()
 
@@ -425,7 +430,8 @@ layout <- c(
 )
 
 # combine and plot!
-(p1 + p1 + p1 + p3 + p4 + p5 + p6 + p2 + p2 + p2 + p8 + p7 + p9 + p10 + p11 + p12 + p13 + p14) + 
+(p1 + p1 + p1 + p3 + p4 + p5 + p6 + p2 + p2 + p2 + p8 + p7 + p9 + p10 + 
+    p11 + p12 + p13 + p14) + 
   plot_layout(design = layout) &
   ylim(0, 1) &
   theme(plot.margin = margin(0, 5.5, 0, 5.5))
@@ -433,11 +439,11 @@ layout <- c(
 
 Wow that plot has a lot of working parts! 
 
-### Implementation in ~~JAGS~~ brms.
+### Implementation in ~~JAGS~~ brms
 
 Below is how to implement the model based on the code from Kruschke's `Jags-Ymet-Xnom2fac-MnormalHom.R` and `Jags-Ymet-Xnom2fac-MnormalHom-Example.R` scripts. With **brms**, we'll need to specify the `stanvars`.
 
-```{r, eval = F}
+```{r, eval = FALSE}
 mean_y <- mean(my_data$y)
 sd_y   <- sd(my_data$y)
 
@@ -467,7 +473,7 @@ gamma_a_b_from_omega_sigma <- function(mode, sd) {
 
 With the preparatory work done, now all we'd need to do is run the `brm()` code.
 
-```{r, eval = F}
+```{r, eval = FALSE}
 fit <-
   brm(data = my_data,
       family = gaussian,
@@ -482,11 +488,11 @@ If you have reason to use different priors for the random effects, you can alway
 
 The big new element is multiple `(|)` parts in the `formula`. In this simple model type, we're only working random intercepts, in this case with two factors and their interaction. The `formula` above presumes the interaction is not itself coded within the data. But consider the case you have data including a term for the interaction of the two lower-level factors, called `interaction`. In that case, you'd have that last part of the `formula` read `(1 | interaction)`, instead.
 
-### Example: It's only money.
+### Example: It's Only Money
 
-Load the salary data[^7].
+Load the salary data[^7]:
 
-```{r, message = F, warning = F}
+```{r, message = FALSE, warning = FALSE}
 my_data <- read_csv("~/Desktop/DBDA/data.R/Salary.csv")
 
 glimpse(my_data)
@@ -499,13 +505,13 @@ my_data <-
   my_data %>% 
   mutate(Pos = factor(Pos,
         levels = c("FT3", "FT2", "FT1", "NDW", "DST") ,
-        ordered = T,
+        ordered = TRUE,
         labels = c("Assis", "Assoc", "Full", "Endow", "Disting")))
 ```
 
 With 1080 cases, two factors, and a criterion, these data are a little too unwieldy to look at the individual case level. But if we're tricky on how we aggregate, we can get a good sense of their structure with a `geom_tile()` plot. Here our strategy is to aggregate by our two factors, `Pos` and `Org`. Since our criterion is `Salary`, we'll compute the mean value of the cases within each unique paring, encoded as `m_salary`. Also, we'll get a sense of how many cases there are within each factor pairing with `n`.
 
-```{r, fig.width = 9, fig.height = 2.5, message = F}
+```{r, fig.width = 9, fig.height = 2.5, message = FALSE}
 my_data %>% 
   group_by(Pos, Org) %>% 
   summarise(m_salary = mean(Salary),
@@ -521,8 +527,8 @@ my_data %>%
   scale_fill_gradient(low = bd[9], high = bd[12],
                       breaks = c(55000, 150000, 260000), 
                       labels = c("$55K", "$150K", "$260K")) +
-  scale_x_discrete("Org", expand = c(0, 0)) +
-  scale_y_discrete("Pos", expand = c(0, 0)) +
+  scale_x_discrete("Organization", expand = c(0, 0)) +
+  scale_y_discrete("Position", expand = c(0, 0)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 0),
         axis.text.y = element_text(hjust = 0),
         axis.ticks = element_blank(),
@@ -533,7 +539,7 @@ Hopefully it's clear that each cell is a unique pairing of `Org` and `Pos`. The 
 
 Load **brms**.
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 library(brms)
 ```
 
@@ -591,7 +597,7 @@ This was a difficult model to fit with **brms**. Stan does well when the criteri
 
 Okay, let's get ready for our version of Figure 20.3. First, we'll use `tidybayes::add_epred_draws()` to help organize the necessary posterior draws.
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 library(tidybayes)
 
 # how many draws would you like?
@@ -604,7 +610,7 @@ f <-
   expand(Pos, 
          Org = c("BFIN", "CHEM", "PSY", "ENG")) %>% 
   add_epred_draws(fit20.1, ndraws = n_draw, seed = 20,
-                  allow_new_levels = T,
+                  allow_new_levels = TRUE,
                   dpar = c("mu", "sigma")) %>% 
   mutate(ll = qnorm(0.025, mean = mu, sd = sigma),
          ul = qnorm(0.975, mean = mu, sd = sigma)) %>% 
@@ -620,7 +626,7 @@ glimpse(f)
 
 We're ready to plot.
 
-```{r, warning = F, message = F ,fig.height = 5.5, fig.width = 8}
+```{r, warning = FALSE, message = F ,fig.height = 5.5, fig.width = 8}
 library(ggridges)
 
 f %>% 
@@ -628,19 +634,19 @@ f %>%
   geom_vline(xintercept = fixef(fit20.1)[, 1], color = bd[5]) +
   geom_ridgeline(aes(height = density, group = interaction(Pos, .draw),
                      color = Pos),
-                 fill = NA, show.legend = F,
+                 fill = NA, show.legend = FALSE,
                  size = 1/4, scale = 3/4) +
   geom_jitter(data = my_data %>% 
-                filter(Org %in% c("BFIN", "CHEM", "PSY", "ENG")) %>% 
-                mutate(Org = factor(Org, levels = c("BFIN", "CHEM", "PSY", "ENG"))),
-              height = 0.025, alpha = 1/2, size = 2/3, color = bd[11]) +
+    filter(Org %in% c("BFIN", "CHEM", "PSY", "ENG")) %>% 
+    mutate(Org = factor(Org, levels = c("BFIN", "CHEM", "PSY", "ENG"))),
+    height = 0.025, alpha = 1/2, size = 2/3, color = bd[11]) +
   scale_color_manual(values = bd[c(14, 13, 8, 12, 3)]) +
   scale_x_continuous(breaks = seq(from = 0, to = 300000, length.out = 4),
                      labels = c("$0", "$100K", "200K", "$300K")) +
   coord_cartesian(xlim = c(0, 350000),
                   ylim = c(1.25, 5.5)) +
   labs(title = "Data with Posterior Predictive Distributions", 
-       subtitle = "The white vertical line is the model-implied grand mean.",
+       subtitle = "The white vertical line is the model-implied grand mean",
        y = "Pos") +
   theme(axis.text.y = element_text(hjust = 0),
         axis.ticks.y = element_blank()) +
@@ -655,7 +661,7 @@ posterior_summary(fit20.1)[1:10,]
 
 The `summarise_draws()` function from the **posterior** package [@R-posterior], however, will take us a long ways towards making Table 20.2. 
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 library(posterior)
 
 as_draws_df(fit20.1) %>% 
@@ -702,7 +708,7 @@ draws %>%
   xlab(expression(sigma[y]))
 ```
 
-As Kruschke pointed out, this parameter is held constant across all subgroups. That is, the subgroups are homogeneous with respect to their variances. We'll relax this constraint later on.
+As Kruschke reminds us that this parameter is held constant across all subgroups. That is, the subgroups are homogeneous with respect to their variances. We'll relax this constraint later on.
 
 Before we move on to the next section, look above at how many arguments we fiddled with to configure `stat_dotsinterval()`. Given how many more dot plots we have looming in our not-too-distant future, we might go ahead and save these settings as a new function. We'll call it `stat_beedrill()`.
 
@@ -718,7 +724,8 @@ stat_beedrill <- function(point_size = 3,
                     point_color = bd[1], point_fill = bd[2],
                     slab_color = slab_color, slab_fill = bd[6], 
                     quantiles = quantiles,
-                    # learn more about this at https://github.com/mjskay/ggdist/issues/93
+                    # learn more about this at 
+                    # https://github.com/mjskay/ggdist/issues/93
                     justification = -0.04,
                     ...)
 }
@@ -726,13 +733,13 @@ stat_beedrill <- function(point_size = 3,
 
 Note how we hard coded the settings for some of the parameters within the function (e.g., `point_interval`) but allows others to be adjustable with new default settings (e.g., `point_size`).
 
-### Main effect contrasts.
+### Main Effect Contrasts
 
-> In applications with multiple levels of the factors, it is virtually always the case that we are interested in comparing particular levels with each other.... These sorts of comparisons, which involve levels of a single factor and collapse across the other factor(s), are called main effect comparisons or contrasts.(p. 595)
+> In applications with multiple levels of the factors, it is virtually always the case that we are interested in comparing particular levels with each other.... These sorts of comparisons, which involve levels of a single factor and collapse across the other factor(s), are called main effect comparisons or contrasts (p. 595).
 
 The `fitted()` function provides a versatile framework for contrasts among the main effects. In order to follow Kruschke's aim to compare "levels of a single factor and collapse across the other factor(s)" when those factors are modeled in a hierarchical structure, one will have to make use of the `re_formula` argument within `fitted()`. Here's how to do that for the first contrast.
 
-```{r, fig.width = 3, fig.height = 2.5, warning = F, message = F}
+```{r, fig.width = 3, fig.height = 2.5, warning = FALSE, message = FALSE}
 # define the new data
 nd <- tibble(Pos = c("Assis", "Assoc"))
 
@@ -742,7 +749,7 @@ f <-
          newdata = nd,
          # this part is crucial
          re_formula = ~ (1 | Pos),
-         summary = F) %>% 
+         summary = FALSE) %>% 
   as_tibble() %>% 
   set_names("Assis", "Assoc") %>% 
   mutate(`Assoc vs Assis` = Assoc - Assis)
@@ -759,7 +766,7 @@ f %>%
 
 In case you were curious, here are the summary statistics.
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 f %>% 
   mode_hdi(`Assoc vs Assis`) %>% 
   select(`Assoc vs Assis`:.upper) %>% 
@@ -776,7 +783,7 @@ f <-
          newdata = nd,
          # note the change from above
          re_formula = ~ (1 | Org),
-         summary = F) %>% 
+         summary = FALSE) %>% 
   as_tibble() %>% 
   set_names(pull(nd, Org)) %>% 
   transmute(`CHEM vs PSY`     = CHEM - PSY,
@@ -809,7 +816,7 @@ f %>%
 
 For more on marginal contrasts in **brms**, see the discussion in [issue #552]((https://github.com/paul-buerkner/brms/issues/552)) in the **brms** GitHub repo and [this discussion thread](https://discourse.mc-stan.org/t/how-do-i-get-marginal-effects-for-categorical-variables-to-condition-on-an-average-rather-than-a-category/5323) on the Stan forums.
 
-### Interaction contrasts and simple effects.
+### Interaction Contrasts and Simple Effects
 
 If we'd like to make the simple effects and interaction contrasts like Kruschke displayed in Figure 20.5 within our **tidyverse**/**brms** paradigm, it'll be simplest to just redefine our `nd` data and use `fitted()`, again. This time, however, we won't be using the `re_formula` argument.
 
@@ -825,13 +832,14 @@ nd <-
 f1 <-
   fitted(fit20.1, 
          newdata = nd,
-         summary = F) %>% 
+         summary = FALSE) %>% 
   # wrangle
   as_tibble() %>% 
   set_names(nd %>% pull(col_names)) %>% 
-  mutate(`Full - Assis @ PSY`  = Full_PSY - Assis_PSY,
+  mutate(`Full - Assis @ PSY`  = Full_PSY - Assis_PSY, 
          `Full - Assis @ CHEM` = Full_CHEM - Assis_CHEM) %>% 
-  mutate(`Full.v.Assis\n(x)\nCHEM.v.PSY` = `Full - Assis @ CHEM` - `Full - Assis @ PSY`)
+    mutate(`Full.v.Assis\n(x)\nCHEM.v.PSY` = `Full - Assis @ CHEM` - 
+             `Full - Assis @ PSY`)
 
 # what have we done?
 head(f1)
@@ -841,7 +849,8 @@ It'll take just a tiny bit more wrangling before we're ready to plot.
 
 ```{r, fig.width = 8, fig.height = 2.5}
 # save the levels
-levels <- c("Full - Assis @ PSY", "Full - Assis @ CHEM", "Full.v.Assis\n(x)\nCHEM.v.PSY")
+levels <- c("Full - Assis @ PSY", "Full - Assis @ CHEM", 
+            "Full.v.Assis\n(x)\nCHEM.v.PSY")
 
 # rope annotation
 text <-
@@ -888,7 +897,7 @@ nd <-
 f2 <-
   fitted(fit20.1, 
          newdata = nd,
-         summary = F) %>% 
+         summary = FALSE) %>% 
   # wrangle
   as_tibble() %>% 
   set_names(nd %>% pull(col_names)) %>% 
@@ -896,7 +905,9 @@ f2 <-
          `Full - Assis @ CHEM` = Full_CHEM - Assis_CHEM,
          `Full - Assis @ ENG`  = Full_ENG - Assis_ENG,
          `Full - Assis @ PSY`  = Full_PSY - Assis_PSY) %>% 
-  mutate(`Full.v.Assis\n(x)\nBFIN.v.the rest` = `Full - Assis @ BFIN` - (`Full - Assis @ CHEM` + `Full - Assis @ ENG` + `Full - Assis @ PSY`) / 3)
+  mutate(`Full.v.Assis\n(x)\nBFIN.v.the rest` = `Full - Assis @ BFIN` - 
+           (`Full - Assis @ CHEM` + `Full - Assis @ ENG` + 
+              `Full - Assis @ PSY`) / 3)
 
 # what have we done?
 glimpse(f2)
@@ -921,13 +932,13 @@ f2 %>%
 
 So while the overall pay averages for those in `BFIN` were larger than those in the other three departments, the differences between full and associate professors within `BFIN` wasn't substantially different from the differences within the other three departments. To be sure, the interquartile range of that last difference distribution fell below both zero and the ROPE, but there's still a lot of spread in the rest of the distribution.
 
-#### Interaction effects: High uncertainty and shrinkage.
+#### Interaction Effects: High Uncertainty and Shrinkage
 
 "It is important to realize that the estimates of interaction contrasts are typically much more uncertain than the estimates of simple effects or main effects" (p. 598).
 
 If we start with our `fitted()` object `f1`, we can wrangle a bit, compute the HDIs with `tidybayes::mode_hdi()` and then use simple subtraction to compute the interval range for each difference.
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 f1 %>% 
   pivot_longer(-contains("_")) %>% 
   mutate(name = factor(name, levels = c("Full - Assis @ PSY", 
@@ -940,13 +951,13 @@ f1 %>%
 
 Just like Kruschke pointed out in the text, the interval for the interaction estimate was quite larger than the intervals for the simple contrasts.
 
-> This large uncertainty of an interaction contrast is caused by the fact that it involves at least four sources of uncertainty (i.e., at least four groups of data), unlike its component simple effects which each involve only half of those sources of uncertainty. In general, interaction contrasts require a lot of data to estimate accurately. (p. 598)
+> This large uncertainty of an interaction contrast is caused by the fact that it involves at least four sources of uncertainty (i.e., at least four groups of data), unlike its component simple effects which each involve only half of those sources of uncertainty. In general, interaction contrasts require a lot of data to estimate accurately (p. 598).
 
 Gelman has blogged on this, a bit (e.g., [*You need 16 times the sample size to estimate an interaction than to estimate a main effect*](https://andrewgelman.com/2018/03/15/need-16-times-sample-size-estimate-interaction-estimate-main-effect/)).
 
 There is also shrinkage.
 
-> The interaction contrasts also can experience notable shrinkage from the hierarchical model. In the present application, for example, there are 300 interaction deflections (5 levels of seniority times 60 departments) that are assumed to come from a higher- level distribution that has an estimated standard deviation, denoted $\sigma_{\beta 1 \times 2}$ in Figure 20.2. Chances are that most of the 300 interaction deflections will be small, and therefore the estimated standard deviation of the interaction deflections will be small, and therefore the estimated deflections themselves will be shrunken toward zero. This shrinkage is inherently neither good nor bad; it is simply the correct consequence of the model assumptions. The shrinkage can be good insofar as it mitigates false alarms about interactions, but the shrinkage can be bad if it inappropriately obscures meaningful interactions. (p. 598)
+> The interaction contrasts also can experience notable shrinkage from the hierarchical model. In the present application, for example, there are 300 interaction deflections (5 levels of seniority times 60 departments) that are assumed to come from a higher- level distribution that has an estimated standard deviation, denoted $\sigma_{\beta 1 \times 2}$ in Figure 20.2. Chances are that most of the 300 interaction deflections will be small, and therefore the estimated standard deviation of the interaction deflections will be small, and therefore the estimated deflections themselves will be shrunken toward zero. This shrinkage is inherently neither good nor bad; it is simply the correct consequence of the model assumptions. The shrinkage can be good insofar as it mitigates false alarms about interactions, but the shrinkage can be bad if it inappropriately obscures meaningful interactions (p. 598).
 
 Here's that $\sigma_{\beta_{1 \times 2}}$.
 
@@ -958,9 +969,9 @@ draws %>%
   scale_y_continuous(NULL, breaks = NULL)
 ```
 
-## Rescaling can change interactions, homogeneity, and normality
+## Rescaling can Change Iinteractions, Homogeneity, and Normality
 
-> When interpreting interactions, it can be important to consider the scale on which the data are measured. This is because an interaction means non-additive effects when measured on the current scale. If the data are nonlinearly transformed to a different scale, then the non-additivity can also change. (p. 599)
+> When interpreting interactions, it can be important to consider the scale on which the data are measured. This is because an interaction means non-additive effects when measured on the current scale. If the data are nonlinearly transformed to a different scale, then the non-additivity can also change (p. 599).
 
 Here is Kruschke's initial example of a possible interaction effect of sex and political party with respect to wages.
 
@@ -1006,7 +1017,7 @@ d %>%
 
 We can get a better sense of this with our version of Figure 20.6. Probably the easiest way to inset the offset labels will be with help from the `geom_dl()` function from the [**directlabels** package](https://CRAN.R-project.org/package=directlabels) [@R-directlabels].
 
-```{r, fig.width = 7.5, fig.height = 4.5, warning = F, message = F}
+```{r, fig.width = 7.5, fig.height = 4.5, warning = FALSE, message = FALSE}
 library(directlabels)
 
 # define the data
@@ -1106,11 +1117,11 @@ p1 + p2 + p3 + p4 + p5 + p6
 
 Kruschke then pointed out that transforming data can have unexpected consequences for summary values, such as variances:
 
-> Suppose one condition has data values of 100, 110, and 120, while a second condition has data values of 1100, 1110, and 1120. For both conditions, the variance is 66.7, so there is homogeneity of variance. When the data are logarithmically transformed, the variance of the first group becomes $1.05 \times 10^{-3}$, but the variance of the second group becomes two orders of magnitude smaller, namely $1.02 \times 10^{-5}$. In the transformed data there is not homogeneity of variance. (p. 601)
+> Suppose one condition has data values of 100, 110, and 120, while a second condition has data values of 1100, 1110, and 1120. For both conditions, the variance is 66.7, so there is homogeneity of variance. When the data are logarithmically transformed, the variance of the first group becomes $1.05 \times 10^{-3}$, but the variance of the second group becomes two orders of magnitude smaller, namely $1.02 \times 10^{-5}$. In the transformed data there is not homogeneity of variance (p. 601).
 
 See for yourself.
 
-```{r, message = F, warning = F}
+```{r, message = FALSE, warning = FALSE}
 tibble(x = c(100, 110, 120, 1100, 1110, 1120),
        y = rep(letters[1:2], each = 3)) %>% 
   group_by(y) %>% 
@@ -1120,11 +1131,11 @@ tibble(x = c(100, 110, 120, 1100, 1110, 1120),
 
 Though it looks like the numbers Kruschke reported in the text are off, his overall point stands. While we had homogeneity of variance for `x`, the variance is heterogeneous when working with `log(x)`.
 
-## Heterogeneous variances and robustness against outliers
+## Heterogeneous Variances and Robustness against Outliers
 
 As we will see in just a moment, our approach to the variant of this model with heterogeneous variances and robustness against outliers will differ slightly from the one Kruschke presented in the text. The two are the same in spirit, but ours differs in how we model $\sigma_{[jk](i)}$. We'll get a sense of that difference in our version of the hierarchical model diagram of Figure 20.7.
 
-```{r, fig.width = 8, fig.height = 7.25, message = F}
+```{r, fig.width = 8, fig.height = 7.25, message = FALSE}
 # bracket
 p1 <-
   tibble(x     = 0.99,
@@ -1163,7 +1174,7 @@ p3 <-
            x = c(0, 1.45), y = 0.6,
            hjust = c(0.5, 0),
            label = c("italic(M)[0]", "italic(S)[0]"), 
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -1181,7 +1192,7 @@ p4 <-
            x = c(0, 1.15), y = 0.6,
            label = c("0", "sigma[beta][1]"), 
            hjust = c(0.5, 0),
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -1199,7 +1210,7 @@ p5 <-
            x = c(0, 1.15), y = 0.6,
            label = c("0", "sigma[beta][2]"), 
            hjust = c(0.5, 0),
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -1217,7 +1228,7 @@ p6 <-
            x = c(0, 0.75), y = 0.6,
            hjust = c(0.5, 0),
            label = c("0", "sigma[beta][1%*%2]"), 
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -1236,7 +1247,7 @@ p7 <-
            label = c("'~'", "'~'", "italic(j)", "'~'", 
                      "italic(k)", "'~'", "italic(jk)"),
            size = c(10, 10, 7, 10, 7, 10, 7), 
-           color = bd[3], family = "Times", parse = T) +
+           color = bd[3], family = "Times", parse = TRUE) +
   xlim(0, 1) +
   theme_void()
 
@@ -1244,10 +1255,15 @@ p7 <-
 p8 <-
   tibble(x = 0.5,
          y = 0.25,
-         label = "beta[0]+sum()[italic(j)]*beta[1]['['*italic(j)*']']*italic(x)[1]['['*italic(j)*']'](italic(i))+sum()[italic(k)]*beta[2]['['*italic(k)*']']*italic(x)[2]['['*italic(k)*']'](italic(i))+sum()[italic(jk)]*beta[1%*%2]['['*italic(jk)*']']*italic(x)[1%*%2]['['*italic(jk)*']'](italic(i))") %>% 
+         label = "beta[0]+sum()[italic(j)]*beta[1]['['*italic(j)*']']*
+         italic(x)[1]['['*italic(j)*']'](italic(i))+sum()[italic(k)]*
+         beta[2]['['*italic(k)*']']*italic(x)[2]['['*
+         italic(k)*']'](italic(i))+sum()[italic(jk)]*
+         beta[1%*%2]['['*italic(jk)*']']*
+         italic(x)[1%*%2]['['*italic(jk)*']'](italic(i))") %>% 
  
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(hjust = 0.5, size = 7, color = bd[3], parse = T, 
+  geom_text(hjust = 0.5, size = 7, color = bd[3], parse = TRUE, 
             family = "Times") +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
   ylim(0, 1) +
@@ -1266,7 +1282,7 @@ p9 <-
            x = c(0, 1.15), y = 0.6,
            label = c("italic(M)[mu[sigma]]", "italic(S)[mu[sigma]]"), 
            hjust = c(0.5, 0),
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -1283,7 +1299,7 @@ p10 <-
   annotate(geom = "text",
            x = 1.5, y = 0.6,
            label = "0*','*~italic(S)[sigma[sigma]]", 
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -1300,7 +1316,7 @@ p11 <-
   annotate(geom = "text",
            x = 0.5, y = 0.6,
            label = "italic(K)",
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -1318,7 +1334,7 @@ p12 <-
            x = c(0, 1.2), y = 0.6,
            hjust = c(0.5, 0),
            label = c("mu[sigma]", "sigma[sigma]"), 
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -1335,7 +1351,7 @@ p13 <-
   annotate(geom = "text",
            x = c(-1.4, 0), y = 0.6,
            label = c("nu", "mu[italic(i)]"),
-           size = 7, color = bd[3], family = "Times", parse = T) +
+           size = 7, color = bd[3], family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5, color = bd[3]))
@@ -1352,7 +1368,7 @@ p14 <-
   annotate(geom = "text",
            x = c(0.24, 0.69), y = 0.62,
            label = "'~'",
-           size = 10, color = bd[3], family = "Times", parse = T) +
+           size = 10, color = bd[3], family = "Times", parse = TRUE) +
   xlim(0, 1) +
   theme_void()
 
@@ -1363,14 +1379,15 @@ p15 <-
          label = "log(sigma['['*italic(jk)*']('*italic(i)*')'])") %>% 
  
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(hjust = 0, size = 7, color = bd[3], parse = T, family = "Times") +
+  geom_text(hjust = 0, size = 7, color = bd[3], parse = TRUE, 
+            family = "Times") +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 2)) +
   ylim(0, 1) +
   theme_void()
 
 # two annotated arrows
 p16 <-
-  tibble(x    = c(0.18, 0.18), # .2142857
+  tibble(x    = c(0.18, 0.18), # 0.2142857
          y    = c(1, 0.45),
          xend = c(0.18, 0.67),
          yend = c(0.75, 0.14)) %>%
@@ -1381,7 +1398,7 @@ p16 <-
   annotate(geom = "text",
            x = c(0.13, 0.18, 0.26), y = c(0.92, 0.64, 0.22),
            label = c("'~'", "nu*minute+1", "'='"),
-           size = c(10, 7, 10), color = bd[3], family = "Times", parse = T) +
+           size = c(10, 7, 10), color = bd[3], family = "Times", parse = TRUE) +
   xlim(0, 1) +
   theme_void()
 
@@ -1398,7 +1415,7 @@ p17 <-
   annotate(geom = "text",
            x = 0.4, y = 0.5,
            label = "'='",
-           size = 10, color = bd[3], family = "Times", parse = T) +
+           size = 10, color = bd[3], family = "Times", parse = TRUE) +
   xlim(0, 1) +
   theme_void()
 
@@ -1415,7 +1432,7 @@ p18 <-
   annotate(geom = "text",
            x = c(0.56, 0.7), y = 0.5,
            label = c("'~'", "italic(jk)"),
-           size = c(10, 7), color = bd[3], family = "Times", parse = T) +
+           size = c(10, 7), color = bd[3], family = "Times", parse = TRUE) +
   xlim(0, 1) +
   theme_void()
 
@@ -1427,7 +1444,7 @@ p19 <-
 
   ggplot(aes(x = x, y = y, label = label)) +
   geom_text(size = c(10, 7),
-            color = bd[3], parse = T, family = "Times") +
+            color = bd[3], parse = TRUE, family = "Times") +
   geom_segment(x = 0.5, xend = 0.5,
                y = 1, yend = 0,
                arrow = my_arrow, color = bd[3]) +
@@ -1441,7 +1458,7 @@ p20 <-
          label = "italic(y[i])") %>%
 
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = 7, color = bd[3], parse = T, family = "Times") +
+  geom_text(size = 7, color = bd[3], parse = TRUE, family = "Times") +
   xlim(0, 1) +
   theme_void()
 
@@ -1474,7 +1491,8 @@ layout <- c(
 )
 
 # combine and plot!
-(p1 + p1 + p1 + p3 + p4 + p5 + p6 + p2 + p2 + p2 + p8 + p7 + p9 + p10 + p11 + p12 + p13 + p14 + p15 + p16 + p17 + p18 + p19 + p20) + 
+(p1 + p1 + p1 + p3 + p4 + p5 + p6 + p2 + p2 + p2 + p8 + p7 + p9 + p10 + 
+    p11 + p12 + p13 + p14 + p15 + p16 + p17 + p18 + p19 + p20) + 
   plot_layout(design = layout) &
   ylim(0, 1) &
   theme(plot.margin = margin(0, 5.5, 0, 5.5))
@@ -1497,7 +1515,7 @@ Recall that to fit a robust hierarchical variances model, we need to wrap our tw
 
 **Warning**: this one took several hours fit.
 
-```{r, echo = F, eval = F}
+```{r, echo = FALSE, eval = FALSE}
 # Heads up: this took about 8 hours to fit (2-7-2020)
 ```
 
@@ -1528,7 +1546,7 @@ print(fit20.2)
 
 This time we'll just feed the results of the wrangling code right into the plotting code for our version of the top panels of Figure 20.8.
 
-```{r, warning = F, message = F ,fig.height = 5.5, fig.width = 8}
+```{r, warning = FALSE, message = F ,fig.height = 5.5, fig.width = 8}
 # how many draws would you like?
 n_draw <- 20
 
@@ -1538,7 +1556,7 @@ my_data %>%
   expand(Pos, 
          Org = c("BFIN", "CHEM", "PSY", "ENG")) %>% 
   add_epred_draws(fit20.2, ndraws = n_draw, seed = 20,
-                  allow_new_levels = T,
+                  allow_new_levels = TRUE,
                   dpar = c("mu", "sigma", "nu")) %>% 
   mutate(ll = qt(0.025, df = nu),
          ul = qt(0.975, df = nu)) %>% 
@@ -1554,20 +1572,21 @@ my_data %>%
   # plot
   ggplot(aes(x = Salary, y = Pos)) +
   geom_vline(xintercept = fixef(fit20.1)[, 1], color = bd[5]) +
-  geom_ridgeline(aes(height = density, group = interaction(Pos, .draw), color = Pos),
-                 fill = NA, show.legend = F,
+  geom_ridgeline(aes(height = density, group = interaction(Pos, .draw), 
+                     color = Pos),
+                 fill = NA, show.legend = FALSE,
                  size = 1/4, scale = 3/4) +
   geom_jitter(data = my_data %>% 
-                filter(Org %in% c("BFIN", "CHEM", "PSY", "ENG")) %>% 
-                mutate(Org = factor(Org, levels = c("BFIN", "CHEM", "PSY", "ENG"))),
-              height = 0.025, alpha = 1/2, size = 2/3, color = bd[11]) +
+    filter(Org %in% c("BFIN", "CHEM", "PSY", "ENG")) %>% 
+    mutate(Org = factor(Org, levels = c("BFIN", "CHEM", "PSY", "ENG"))),
+    height = 0.025, alpha = 1/2, size = 2/3, color = bd[11]) +
   scale_color_manual(values = bd[c(14, 13, 8, 12, 3)]) +
   scale_x_continuous(breaks = seq(from = 0, to = 300000, length.out = 4),
                      labels = c("$0", "$100K", "200K", "$300K")) +
   coord_cartesian(xlim = c(0, 350000),
                   ylim = c(1.25, 5.5)) +
   labs(title = "Data with Posterior Predictive Distributions", 
-       subtitle = "The white vertical line is the model-implied grand mean.",
+       subtitle = "The white vertical line is the model-implied grand mean",
        y = "Pos") +
   theme(axis.text.y = element_text(hjust = 0),
         axis.ticks.y = element_blank()) +
@@ -1576,7 +1595,7 @@ my_data %>%
 
 Our results for the bottom panel of Figure 20.8 will differ substantially from Kruschke's. Recall that Kruschke modeled $\sigma_{[j, k](i)}$ with a hierarchical gamma distribution and using the $\omega + \sigma$ parameterization. We, however, modeled our hierarchical $\log (\sigma)$ with the typical normal distribution. As such, we have posteriors for $\sigma_\mu$ and $\sigma_\sigma$.
 
-```{r, fig.width = 8, fig.height = 2.5, warning = F}
+```{r, fig.width = 8, fig.height = 2.5, warning = FALSE}
 # wrangle
 as_draws_df(fit20.2) %>% 
   transmute(Normality              = log10(nu), 
@@ -1584,13 +1603,13 @@ as_draws_df(fit20.2) %>%
             `SD of Cell Sigma's`   = exp(`sd_Pos:Org__sigma_Intercept`)) %>%
   pivot_longer(everything()) %>% 
   mutate(name = factor(name, 
-  levels = c("Normality", "Mean of Cell Sigma's", "SD of Cell Sigma's"))) %>% 
+  levels = c("Normality", "Mean of Cell sigma's", "SD of Cell sigma's"))) %>% 
   
   # plot
   ggplot(aes(x = value, y = 0)) +
   stat_beedrill() +
   scale_y_continuous(NULL, breaks = NULL) +
-  xlab("param. value") +
+  xlab("Parameter value") +
   facet_wrap(~ name, scales = "free", ncol = 3)
 ```
 
@@ -1608,7 +1627,7 @@ nd <-
 f <-
   fitted(fit20.2, 
          newdata = nd,
-         summary = F) %>% 
+         summary = FALSE) %>% 
   # wrangle
   as_tibble() %>% 
   set_names(nd %>% pull(col_names)) %>% 
@@ -1658,7 +1677,7 @@ posterior_summary(fit20.2)["sd_Pos:Org__Intercept", ]
 
 They are similar to the values in the text. And recall, of course, the `brms::posterior_summary()` function returns posterior means. If you really wanted the posterior modes, like Kruschke reported in the text, you'll have to work a little harder.
 
-```{r, warning = F}
+```{r, warning = FALSE}
 bind_rows(as_draws_df(fit20.1) %>% select(`sd_Pos:Org__Intercept`),
           as_draws_df(fit20.2) %>% select(`sd_Pos:Org__Intercept`)) %>% 
   mutate(fit = rep(c("fit20.1", "fit20.2"), times = c(8000, 12000))) %>% 
@@ -1670,7 +1689,7 @@ bind_rows(as_draws_df(fit20.1) %>% select(`sd_Pos:Org__Intercept`),
 
 The curious might even look at those in a plot.
 
-```{r, fig.width = 6, fig.height = 2, warning = F}
+```{r, fig.width = 6, fig.height = 2, warning = FALSE}
 bind_rows(as_draws_df(fit20.1) %>% select(`sd_Pos:Org__Intercept`),
           as_draws_df(fit20.2) %>% select(`sd_Pos:Org__Intercept`)) %>% 
   mutate(fit = rep(c("fit20.1", "fit20.2"), times = c(8000, 12000))) %>% 
@@ -1682,7 +1701,7 @@ bind_rows(as_draws_df(fit20.1) %>% select(`sd_Pos:Org__Intercept`),
   coord_cartesian(ylim = c(1.5, NA))
 ```
 
-"Which model is a better description of the data?... In principle, an intrepid programmer could do a Bayesian model comparison..." (pp. 605--606). We could also examine information criteria, like the LOO.
+"Which model is a better description of the data? $\ldots$ In principle, an intrepid programmer could do a Bayesian model comparison$\ldots$" (pp. 605--606). We could also examine information criteria, like the LOO:
 
 ```{r}
 fit20.1 <- add_criterion(fit20.1, "loo")
@@ -1691,57 +1710,57 @@ fit20.2 <- add_criterion(fit20.2, "loo")
 
 *Sigh*. Both models had high `pareto_k` values, suggesting there were outliers relative to what was expected by their likelihoods. Just a little further in the text, Kruschke gives us hints why this might be so:
 
-> Moreover, both models assume that the data within cells are distributed symmetrically above and below their central tendency, either as a normal distribution or a $t$-distribution. The data instead seem to be skewed toward larger values, especially for advanced seniorities. (p. 606)
+> Moreover, both models assume that the data within cells are distributed symmetrically above and below their central tendency, either as a normal distribution or a $t$-distribution. The data instead seem to be skewed toward larger values, especially for advanced seniorities (p. 606).
 
 Here's the current LOO difference.
 
 ```{r}
-loo_compare(fit20.1, fit20.2) %>% print(simplify = F)
+loo_compare(fit20.1, fit20.2) %>% print(simplify = FALSE)
 ```
 
 For a more robust model comparison, we might follow the `kfold()` suggestion in the warning. However, be warned: The `kfold()` function entails refitting the model `K` times. `fit20.1` took about an hour to fit and `fit20.2` took several more.  Proceed with caution. 
 
 But really, "we might want to create a model that describes the data within each cell as a skewed distribution such as a Weibull" (p. 606). Yes, **brms** can handle Weibull regression (e.g., [here](https://discourse.mc-stan.org/t/fitting-time-to-event-data-with-weibull-hazard-using-brm-function/4638)).
 
-```{r, echo = F}
+```{r, echo = FALSE}
 # these fits are sufficiently large that I'd like to clear them out before moving on
 rm(fit20.1, fit20.2)
 ```
 
-## Within-subject designs
+## Within-Subject Designs
 
 > When every subject contributes many measurements to every cell, then the model of the situation is a straight-forward extension of the models we have already considered. We merely add "subject" as another nominal predictor in the model, with each individual subject being a level of the predictor. If there is one predictor other than subject, the model becomes
 >
-> $$ y = \beta_0 + \overrightarrow \beta_1 \overrightarrow x_1 + \overrightarrow \beta_S \overrightarrow x_S + \overrightarrow \beta_{1 \times S} \overrightarrow x_{1 \times S} $$
+> $$ y = \beta_0 + \overrightarrow{\beta_1} \overrightarrow{x_1} + \overrightarrow{\beta_S} \overrightarrow{x_S} + \overrightarrow{\beta_{1 \times S}} \overrightarrow{x_{1 \times S}} $$
 >
 > This is exactly the two-predictor model we have already considered, with the second predictor being subject. When there are two predictors other than subject, the model becomes
 > 
 > \begin{align*}
-> y = & \; \beta_0 & \text{baseline} \\
-> & + \overrightarrow \beta_1 \overrightarrow x_1 + \overrightarrow \beta_2 \overrightarrow x_2 + \overrightarrow \beta_S \overrightarrow x_S  & \text{main effects} \\
-> & + \overrightarrow \beta_{1 \times 2} \overrightarrow x_{1 \times 2} + \overrightarrow \beta_{1 \times S} \overrightarrow x_{1 \times S} + \overrightarrow \beta_{2 \times S} \overrightarrow x_{2 \times S} & \text{two-way interactions} \\
-> & + \overrightarrow \beta_{1 \times 2 \times S} \overrightarrow x_{1 \times 2 \times S} & \text{three-way interactions}
+> y = & \; \beta_0 & \text{Baseline} \\
+> & + \overrightarrow{\beta_1} \overrightarrow{x_1} + \overrightarrow{\beta_2} \overrightarrow{x_2} + \overrightarrow{\beta_S} \overrightarrow{x_S}  & \text{Main effects} \\
+> & + \overrightarrow{\beta_{1 \times 2}} \overrightarrow{x_{1 \times 2}} + \overrightarrow{\beta_{1 \times S}} \overrightarrow{x_{1 \times S}} + \overrightarrow{\beta_{2 \times S}} \overrightarrow{x_{2 \times S}} & \text{Two-way interactions} \\
+> & + \overrightarrow{\beta_{1 \times 2 \times S}} \overrightarrow{x_{1 \times 2 \times S}} & \text{Three-way interactions}
 > \end{align*}
 > 
-> This model includes all the two-way interactions of the factors, plus the three-way interaction. (p. 607)
+> This model includes all the two-way interactions of the factors, plus the three-way interaction (p. 607).
 
 In situations in which subjects only contribute one observation per condition/cell, we simplify the model to
 
 \begin{align*}
 y = & \; \beta_0 \\
-& + \overrightarrow \beta_1 \overrightarrow x_1 + \overrightarrow \beta_2 \overrightarrow x_2 + \overrightarrow \beta_{1 \times 2} \overrightarrow x_{1 \times 2} \\
-& + \overrightarrow \beta_S \overrightarrow x_S
+& + \overrightarrow{\beta_1} \overrightarrow{x_1} + \overrightarrow{\beta_2} \overrightarrow{x_2} + \overrightarrow{\beta_{1 \times 2}} \overrightarrow{x_{1 \times 2}} \\
+& + \overrightarrow{\beta_S} \overrightarrow{x_S}
 \end{align*}
 
 "In other words, we assume a main effect of subject, but no interaction of subject with other predictors. In this model, the subject effect (deflection) is constant across treatments, and the treatment effects (deflections) are constant across subjects" (p. 608).
 
-### Why use a within-subject design? And why not?
+### Why Use a Within-Subject Design? And Why Not?
 
-Kruschke opined "the primary reason to use a within-subject design is that you can achieve greater precision in the estimates of the effects than in a between-subject design" (p. 608). Well, to that I counterpoint: "No one goes to the circus to see the average dog jump through the hoop significantly oftener than untrained does raised under the same circumstances" [@skinnerCaseHistoryScientific1956, p. 228]. And it's unlikely you’ll make a skillful jumper of your dog without repeated trials. There's also the related issue that between- and within-person processes aren't necessarily the same. For an introduction to the issue, see Hamaker's [-@hamakerWhyResearchersShould2012] chapter, [*Why researchers should think "within-person": A paradigmatic rationale*](https://www.researchgate.net/publication/266896375_Why_researchers_should_think_within-person_A_paradigmatic_rationale), or the paper from @bolgerCausalProcessesPsychology2019, [*Causal processes in psychology are heterogeneous*](https://www.researchgate.net/profile/Niall_Bolger/publication/332358948_Causal_processes_in_psychology_are_heterogeneous/links/5cd9b471a6fdccc9ddaa7879/Causal-processes-in-psychology-are-heterogeneous.pdf).
+Kruschke opined "the primary reason to use a within-subject design is that you can achieve greater precision in the estimates of the effects than in a between-subject design" (p. 608). Well, to that I counterpoint: "No one goes to the circus to see the average dog jump through the hoop significantly oftener than untrained does raised under the same circumstances" [@skinnerCaseHistoryScientific1956, p. 228]. And it's unlikely you’ll make a skillful jumper of your dog without repeated trials. There's also the related issue that between- and within-person processes aren't necessarily the same. For an introduction to the issue, see Hamaker's [-@hamakerWhyResearchersShould2012] chapter, [*Why Researchers Should Think "Within-Person": A Paradigmatic Rationale*](https://www.researchgate.net/publication/266896375_Why_researchers_should_think_within-person_A_paradigmatic_rationale), or the paper from @bolgerCausalProcessesPsychology2019, [*Causal Processes in Psychology are Heterogeneous*](https://www.researchgate.net/profile/Niall_Bolger/publication/332358948_Causal_processes_in_psychology_are_heterogeneous/links/5cd9b471a6fdccc9ddaa7879/Causal-processes-in-psychology-are-heterogeneous.pdf).
 
 But we digress.
 
-Here's the 4-subject response time data.
+Here's the four-subject response time data:
 
 ```{r}
 (
@@ -1767,19 +1786,19 @@ d %>%
 
 Here there is more variability between subjects than within them, which you'd never detect without a within-subject design including multiple subjects.
 
-### Split-plot design.
+### Split-Plot Design
 
 "Split-plot experiments were invented by @fisherStatisticalMethodsResearch1925 (p. 610)."
 
 Kruschke then wrote this to set the stage for the next subsection:
 
-> Consider an agricultural experiment investigating the productivity of different soil tilling methods and different fertilizers. It is relatively easy to provide all the farmers with the several different fertilizers. But it might be relatively difficult to provide all farmers with all the machinery for several different tilling methods. Therefore, any particular farmer will use a single (randomly assigned) tilling method on his whole plot, and tilling methods will differ between whole plots. Each farmer will split his field into subplots and apply all the fertilizers to different (randomly assigned) split plots, and fertilizers will differ across split plots within whole plots. This type of experiment inspires the name, split-plot design. The generic experiment-design term for the farmer's field is "block." Then, the factor that varies within every field is called the within-block factor and the factor that varies between fields is called the between-block factor. Notice also that each split plot yields a single measurement (in this case the productivity measured in bushels per acre), not multiple measurements. (p. 610)
+> Consider an agricultural experiment investigating the productivity of different soil tilling methods and different fertilizers. It is relatively easy to provide all the farmers with the several different fertilizers. But it might be relatively difficult to provide all farmers with all the machinery for several different tilling methods. Therefore, any particular farmer will use a single (randomly assigned) tilling method on his whole plot, and tilling methods will differ between whole plots. Each farmer will split his field into subplots and apply all the fertilizers to different (randomly assigned) split plots, and fertilizers will differ across split plots within whole plots. This type of experiment inspires the name, split-plot design. The generic experiment-design term for the farmer's field is "block." Then, the factor that varies within every field is called the within-block factor and the factor that varies between fields is called the between-block factor. Notice also that each split plot yields a single measurement (in this case the productivity measured in bushels per acre), not multiple measurements (p. 610).
 
-#### Example: Knee high by the fourth of July.
+#### Example: Knee High by the Fourth of July
 
-Load the agronomy data.
+Load the agronomy data:
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 my_data <- read_csv("~/Desktop/DBDA/data.R/SplitPlotAgriData.csv")
 
 glimpse(my_data)
@@ -1802,13 +1821,13 @@ my_data %>%
 
 As Kruschke pointed out in the text, notice how each `Field` has only one level of `Till`, but three levels of `Fert`.
 
-#### The descriptive model.
+#### The Descriptive Model
 
-> In the classical ANOVA-style model for a split-plot design, the overall variance is conceptually decomposed into five components: the main effect of the between-subjects factor, the main effect of the within-subjects factor, the interaction of the two factors, the effect of subject within levels of the between-subject factor, and the interaction of subject with the within-subject factor. Unfortunately, because there is only a single datum per cell, the five components exactly match the data, which is to say that there are as many parameters as there are data points. (If every subject contributed multiple data points to every cell then the five-component model could be used.) Because there is no residual noise within cells, the classical approach is to treat the final component as noise, that is, treat the interaction of subject with the within-subject factor as noise. That component is not included in the model (at least, not distinct from noise). We will do the same for the descriptive model in our Bayesian analysis. (p. 612)
+> In the classical ANOVA-style model for a split-plot design, the overall variance is conceptually decomposed into five components: the main effect of the between-subjects factor, the main effect of the within-subjects factor, the interaction of the two factors, the effect of subject within levels of the between-subject factor, and the interaction of subject with the within-subject factor. Unfortunately, because there is only a single datum per cell, the five components exactly match the data, which is to say that there are as many parameters as there are data points. (If every subject contributed multiple data points to every cell then the five-component model could be used.) Because there is no residual noise within cells, the classical approach is to treat the final component as noise, that is, treat the interaction of subject with the within-subject factor as noise. That component is not included in the model (at least, not distinct from noise). We will do the same for the descriptive model in our Bayesian analysis (p. 612).
 
-#### Implementation in ~~JAGS~~ brms.
+#### Implementation in ~~JAGS~~ brms
 
-Define the `stanvars`.
+Define the `stanvars`:
 
 ```{r}
 mean_y <- mean(my_data$Yield)
@@ -1826,7 +1845,7 @@ stanvars <-
   stanvar(s_r$rate,  name = "beta")
 ```
 
-Here's how to fit the model with `brm()`.
+Here's how to fit the model with `brm()`:
 
 ```{r fit20.3}
 fit20.3 <-
@@ -1844,9 +1863,9 @@ fit20.3 <-
       file = "~/Desktop/DBDA/fits/fit20.03")
 ``` 
 
-#### Results.
+#### Results
 
-Check the summary.
+Check the summary:
 
 ```{r}
 print(fit20.3)
@@ -1854,7 +1873,7 @@ print(fit20.3)
 
 We might compare the $\sigma$ posteriors with a plot.
 
-```{r, fig.width = 8, fig.height = 2.75, warning = F}
+```{r, fig.width = 8, fig.height = 2.75, warning = FALSE}
 as_draws_df(fit20.3) %>% 
   pivot_longer(c(sigma, starts_with("sd"))) %>% 
     
@@ -1917,25 +1936,33 @@ nd <-
 
 fitted(fit20.3,
        newdata = nd,
-       summary = F,
+       summary = FALSE,
        re_formula = Yield ~ 1 + (1 | Till) + (1 | Fert) + (1 | Till:Fert)) %>% 
   as_tibble() %>% 
   set_names(nd %>% pull(col_names)) %>% 
   transmute(
-`Moldbrd\nvs\nRidge` = ((Moldbrd_Broad + Moldbrd_Deep + Moldbrd_Surface) / 3) - ((Ridge_Broad + Ridge_Deep + Ridge_Surface) / 3),
+`Moldbrd\nvs\nRidge` = ((Moldbrd_Broad + Moldbrd_Deep + Moldbrd_Surface) / 3) - 
+  ((Ridge_Broad + Ridge_Deep + Ridge_Surface) / 3),
             
-    `Moldbrd.Ridge\nvs\nChisel` = ((Moldbrd_Broad + Moldbrd_Deep + Moldbrd_Surface + Ridge_Broad + Ridge_Deep + Ridge_Surface) / 6) - ((Chisel_Broad + Chisel_Deep + Chisel_Surface) / 3),
+    `Moldbrd.Ridge\nvs\nChisel` = ((Moldbrd_Broad + Moldbrd_Deep + 
+      Moldbrd_Surface + Ridge_Broad + Ridge_Deep + Ridge_Surface) / 6) - 
+  ((Chisel_Broad + Chisel_Deep + Chisel_Surface) / 3),
     
-    `Deep.Surface\nvs\nBroad` = ((Chisel_Deep + Moldbrd_Deep + Ridge_Deep + Chisel_Surface + Moldbrd_Surface + Ridge_Surface) / 6) - ((Chisel_Broad + Moldbrd_Broad + Ridge_Broad) / 3),
+    `Deep.Surface\nvs\nBroad` = ((Chisel_Deep + Moldbrd_Deep + Ridge_Deep + 
+      Chisel_Surface + Moldbrd_Surface + Ridge_Surface) / 6) - 
+  ((Chisel_Broad + Moldbrd_Broad + Ridge_Broad) / 3),
     
 `Chisel.Moldbrd.v.Ridge\n(x)\nBroad.v.Deep.Surface` = 
-        (((Chisel_Broad + Chisel_Deep + Chisel_Surface + Moldbrd_Broad + Moldbrd_Deep + Moldbrd_Surface) / 6) - 
+        (((Chisel_Broad + Chisel_Deep + Chisel_Surface + Moldbrd_Broad + 
+             Moldbrd_Deep + Moldbrd_Surface) / 6) - 
         ((Ridge_Broad + Ridge_Deep + Ridge_Surface) / 3)) - 
-        (((Chisel_Broad + Moldbrd_Broad + Ridge_Broad) / 3) - 
-        ((Chisel_Deep + Moldbrd_Deep + Ridge_Deep + Chisel_Surface + 
-                  Moldbrd_Surface + Ridge_Surface) / 6))) %>% 
+          (((Chisel_Broad + Moldbrd_Broad + Ridge_Broad) / 3) - 
+             ((Chisel_Deep + Moldbrd_Deep + Ridge_Deep + 
+                 Chisel_Surface + Moldbrd_Surface + Ridge_Surface) / 6))) %>% 
   pivot_longer(everything()) %>% 
-  mutate(name = factor(name, levels = c("Moldbrd\nvs\nRidge", "Moldbrd.Ridge\nvs\nChisel", "Deep.Surface\nvs\nBroad", "Chisel.Moldbrd.v.Ridge\n(x)\nBroad.v.Deep.Surface"))) %>% 
+  mutate(name = factor(name, levels = c("Moldbrd\nvs\nRidge", 
+    "Moldbrd.Ridge\nvs\nChisel", "Deep.Surface\nvs\nBroad", 
+    "Chisel.Moldbrd.v.Ridge\n(x)\nBroad.v.Deep.Surface"))) %>% 
   
   ggplot(aes(x = value, y = 0)) +
   geom_rect(xmin = -5, xmax = 5,
@@ -1969,13 +1996,13 @@ fit20.4 <-
       file = "~/Desktop/DBDA/fits/fit20.04")
 ``` 
 
-Behold the summary.
+Behold the summary:
 
 ```{r}
 print(fit20.4)
 ```
 
-Look at how much larger the posterior is for $\sigma_y$ in this model compared to `fit20.3`.
+Look at how much larger the posterior is for $\sigma_y$ in this model compared to `fit20.3`:
 
 ```{r}
 posterior_summary(fit20.3)["sigma", ]
@@ -2022,27 +2049,29 @@ Now the make the plots for the contrast distributions.
 ```{r, fig.width = 8, fig.height = 2.5}
 fitted(fit20.4,
        newdata = nd,
-       summary = F,
+       summary = FALSE,
        re_formula = Yield ~ 1 + (1 | Till) + (1 | Fert) + (1 | Till:Fert)) %>% 
   as_tibble() %>% 
   set_names(nd %>% pull(col_names)) %>% 
-  transmute(
-`Moldbrd\nvs\nRidge` = ((Moldbrd_Broad + Moldbrd_Deep + Moldbrd_Surface) / 3) - ((Ridge_Broad + Ridge_Deep + Ridge_Surface) / 3),
-            
-`Moldbrd.Ridge\nvs\nChisel` = ((Moldbrd_Broad + Moldbrd_Deep + Moldbrd_Surface + Ridge_Broad + Ridge_Deep + Ridge_Surface) / 6) - ((Chisel_Broad + Chisel_Deep + Chisel_Surface) / 3),
-    
-`Deep.Surface\nvs\nBroad` = ((Chisel_Deep + Moldbrd_Deep + Ridge_Deep + Chisel_Surface + Moldbrd_Surface + Ridge_Surface) / 6) - ((Chisel_Broad + Moldbrd_Broad + Ridge_Broad) / 3),
+  transmute(`Moldbrd\nvs\nRidge` = ((Moldbrd_Broad + Moldbrd_Deep + 
+    Moldbrd_Surface) / 3) - ((Ridge_Broad + Ridge_Deep + Ridge_Surface) / 3), 
+    `Moldbrd.Ridge\nvs\nChisel` = ((Moldbrd_Broad + Moldbrd_Deep + 
+      Moldbrd_Surface + Ridge_Broad + Ridge_Deep + Ridge_Surface) / 6) - 
+      ((Chisel_Broad + Chisel_Deep + Chisel_Surface) / 3), 
+    `Deep.Surface\nvs\nBroad` = ((Chisel_Deep + Moldbrd_Deep + Ridge_Deep + 
+        Chisel_Surface + Moldbrd_Surface + Ridge_Surface) / 6) - 
+      ((Chisel_Broad + Moldbrd_Broad + Ridge_Broad) / 3),
     
 `Chisel.Moldbrd.v.Ridge\n(x)\nBroad.v.Deep.Surface` = 
-  (((Chisel_Broad + Chisel_Deep + Chisel_Surface + Moldbrd_Broad +
-  Moldbrd_Deep + Moldbrd_Surface) / 6) - ((Ridge_Broad + Ridge_Deep +
-  Ridge_Surface) / 3)) - (((Chisel_Broad + Moldbrd_Broad + Ridge_Broad) / 3) -
+  (((Chisel_Broad + Chisel_Deep + Chisel_Surface + Moldbrd_Broad + 
+       Moldbrd_Deep + Moldbrd_Surface) / 6) - ((Ridge_Broad + Ridge_Deep + 
+  Ridge_Surface) / 3)) - (((Chisel_Broad + Moldbrd_Broad + Ridge_Broad) / 3) - 
   ((Chisel_Deep + Moldbrd_Deep + Ridge_Deep + Chisel_Surface + 
-  Moldbrd_Surface + Ridge_Surface) / 6))) %>% 
+      Moldbrd_Surface + Ridge_Surface) / 6))) %>% 
   pivot_longer(everything()) %>% 
-  mutate(name = factor(name, levels = c("Moldbrd\nvs\nRidge",
-        "Moldbrd.Ridge\nvs\nChisel", "Deep.Surface\nvs\nBroad",
-        "Chisel.Moldbrd.v.Ridge\n(x)\nBroad.v.Deep.Surface"))) %>% 
+  mutate(name = factor(name, levels = c("Moldbrd\nvs\nRidge", 
+    "Moldbrd.Ridge\nvs\nChisel", "Deep.Surface\nvs\nBroad", 
+    "Chisel.Moldbrd.v.Ridge\n(x)\nBroad.v.Deep.Surface"))) %>% 
   
   ggplot(aes(x = value, y = 0)) + 
   geom_rect(xmin = -5, xmax = 5,
@@ -2058,33 +2087,33 @@ fitted(fit20.4,
 
 Though not identical, these were closer to those Kruschke displayed in the text.
 
-#### Model comparison approach.
+#### Model Comparison Approach
 
 Like we covered in Chapter 10, I'm not aware that Stan/**brms** will allow for $\delta$ factor-inclusion parameters the way JAGS allows. However, if you'd like to compare models with different parameters, you can always use information criteria.
 
-```{r, eval = F}
+```{r, eval = FALSE}
 fit20.3 <- add_criterion(fit20.3, "loo")
 fit20.4 <- add_criterion(fit20.4, "loo")
 ```
 
 Executing that yielded the following warning message:
 
-> Found 4 observations with a pareto_k > 0.7 in model 'fit20.3'. It is recommended to set 'moment_match = TRUE' in order to perform moment matching for problematic observations. 
+> `Found 4 observations with a pareto_k > 0.7 in model 'fit20.3'. It is recommended to set 'moment_match = TRUE' in order to perform moment matching for problematic observations.`
 
-To use the `moment_match` approach, the model in question must have been fit with the setting `save_pars = save_pars(all = TRUE)` within the `brm()` call. The default is `save_pars = NULL` and we used the default settings, above. If you go through the trouble of refitting the model with those updated settings, you'll find that the `moment_match` approach didn't help in this case. For the sake of reducing clutter, I'm not going to show the code for refitting the model. However, the next warning message I got after executing `fit20.3 <- add_criterion(fit20.3, "loo", moment_match = T)` was:
+To use the `moment_match` approach, the model in question must have been fit with the setting `save_pars = save_pars(all = TRUE)` within the `brm()` call. The default is `save_pars = NULL` and we used the default settings, above. If you go through the trouble of refitting the model with those updated settings, you'll find that the `moment_match` approach didn't help in this case. For the sake of reducing clutter, I'm not going to show the code for refitting the model. However, the next warning message I got after executing `fit20.3 <- add_criterion(fit20.3, "loo", moment_match = TRUE)` was:
 
 > Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.
 Found 4 observations with a pareto_k > 0.7 in model 'fit20.3'. It is recommended to set 'reloo = TRUE' in order to calculate the ELPD without the assumption that these observations are negligible. This will refit the model 4 times to compute the ELPDs for the problematic observations directly.
 
 So it's time to bring in the big guns. Let's use `reloo`. Be warned that, because this requires the model to be refit 4 times, this will take a few minutes.
 
-```{r, eval = F}
+```{r, eval = FALSE}
 fit20.3 <- add_criterion(fit20.3, criterion = "loo", reloo = TRUE)
 ```
 
 Okay, we're *finally* ready for the LOO comparison.
 
-```{r, echo = F}
+```{r, echo = FALSE}
 # For some unknown reason, brms doesn't seem to let met save the results of 
 # reloo in the external model fit file. Executing reloo takes too long to do 
 # each time I render this file. So I'm saving the results of the loo comparison 
@@ -2095,12 +2124,12 @@ Okay, we're *finally* ready for the LOO comparison.
 # save(lc, file = "fits/loo_compare_20.rda")
 load("~/Desktop/DBDA/fits/loo_compare_20.rda")
 
-lc %>% print(simplify = F)
+lc %>% print(simplify = FALSE)
 ```
 
-```{r, eval = F}
+```{r, eval = FALSE}
 loo_compare(fit20.3, fit20.4) %>% 
-  print(simplify = F)
+  print(simplify = FALSE)
 ```
 
 All good. Based on the LOO values, we should prefer the fuller model. This, of course, should be no surprise. The posterior for $\sigma_\text{Field}$ was a far cry from zero.
@@ -2111,22 +2140,22 @@ posterior_summary(fit20.3)["sd_Field__Intercept", ]
 
 Kruschke ended this chapter by mentioning Bayes' factors:
 
-> Bayes' factor approaches to hypothesis tests in ANOVA were presented by @rouderDefaultBayesFactors2012 and Wetzels, Grasman, and Wagenmakers [-@wetzelsDefaultBayesianHypothesis2012]. Morey and Rouder's BayesFactor package for R is available at the Web site [http://bayesfactorpcl.r-forge.r-project.org/](http://bayesfactorpcl.r-forge.r-project.org/). (p. 618)
+> Bayes' factor approaches to hypothesis tests in ANOVA were presented by @rouderDefaultBayesFactors2012 and Wetzels, Grasman, and Wagenmakers [-@wetzelsDefaultBayesianHypothesis2012]. Morey and Rouder's BayesFactor package for R is available at the Web site [http://bayesfactorpcl.r-forge.r-project.org/](http://bayesfactorpcl.r-forge.r-project.org/) (p. 618).
 
-If you wanna go that route, you're on your own.
+If you want to go that route, you're on your own.
 
-## Session info {-}
+## Session Info {-}
 
 ```{r}
 sessionInfo()
 ```
 
-```{r, message = F, echo = F}
+```{r, message = FALSE, echo = FALSE}
 # remove the objects
 rm(grand_mean, deflection_1, deflection_2, nonadditive_component, d, bd, p, p1, p2, p3, my_arrow, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, layout, gamma_a_b_from_omega_sigma, my_data, mean_y, sd_y, omega, sigma, s_r, stanvars, n_draw, f, draws, stat_beedrill, nd, f1, levels, text, f2, p15, p16, p17, p18, p19, p20, fit20.3, col_names, fit20.4, lc)
 ```
 
-```{r, echo = F, message = F, warning = F, results = "hide"}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)

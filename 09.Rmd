@@ -13,26 +13,20 @@ knitr::opts_chunk$set(collapse = TRUE,
 ```
 
 
-
-```{r, echo = F}
-knitr::opts_chunk$set(fig.retina = 2.5)
-knitr::opts_chunk$set(fig.align = "center")
-```
-
 # Hierarchical Models
 
 As Kruschke put it, "There are many realistic situations that involve meaningful hierarchical structure. Bayesian modeling software makes it straightforward to specify and analyze complex hierarchical models" [-@kruschkeDoingBayesianData2015, p. 221]. IMO, **brms** makes it even easier than JAGS. Further down, we read:
 
-> The parameters at different levels in a hierarchical model are all merely parameters that coexist in a joint parameter space. We simply apply Bayes' rule to the joint parameter space, as we did for example when estimating two coin biases back in Figure 7.5, p. 167. To say it a little more formally with our parameters $\theta$ and $\omega$, Bayes' rule applies to the joint parameter space: $p(\theta, \omega | D) \propto p(D | \theta, \omega) p(\theta, \omega)$. What is special to hierarchical models is that the terms on the right-hand side can be factored into a chain of dependencies, like this:
+> The parameters at different levels in a hierarchical model are all merely parameters that coexist in a joint parameter space. We simply apply Bayes' rule to the joint parameter space, as we did for example when estimating two coin biases back in Figure 7.5, p. 167. To say it a little more formally with our parameters $\theta$ and $\omega$, Bayes' rule applies to the joint parameter space: $p \left( \theta, \omega \mid D \right) \propto p \left( D \mid \theta, \omega \right) p(\theta, \omega)$. What is special to hierarchical models is that the terms on the right-hand side can be factored into a chain of dependencies, like this:
 >
 > \begin{align*}
-> p(\theta, \omega | D) & \propto p(D | \theta, \omega) \; p(\theta, \omega) \\
->                       & = p(D | \theta) \; p(\theta | \omega) \; p(\omega)
+> p \left( \theta, \omega \mid D \right) &\propto p \left( D \mid \theta, \omega \right) \; p(\theta, \omega) \\
+> &= p \left( D \mid \theta \right) \; p \left( \theta \mid \omega \right) \; p(\omega)
 > \end{align*}
 >
 > The refactoring in the second line means that the data depend only on the value of $\theta$, in the sense that when the value $\theta$ is set then the data are independent of all other parameter values. Moreover, the value of $\theta$ depends on the value of $\omega$ and the value of $\theta$ is conditionally independent of all other parameters. Any model that can be factored into a chain of dependencies like [this] is a hierarchical model. (pp. 222--223)
 
-## A single coin from a single mint
+## A Single Coin from a Single Mint
 
 Recall from the last chapter that our likelihood is the Bernoulli distribution,
 
@@ -48,11 +42,11 @@ $$\alpha = \omega(\kappa - 2) + 1 \;\;\; \textrm{and} \;\;\; \beta = (1 - \omega
 
 As a consequence, we can re-express $\theta$ as
 
-$$\theta \sim \operatorname{beta}(\omega(\kappa - 2) + 1, (1 - \omega)(\kappa - 2) + 1).$$
+$$\theta \sim \operatorname{beta} \left( \omega(\kappa - 2) + 1, \; (1 - \omega)(\kappa - 2) + 1 \right).$$
 
 On page 224, Kruschke wrote: "The value of $\kappa$ governs how near $\theta$ is to $\omega$, with larger values of $\kappa$ generating values of $\theta$ more concentrated near $\omega$." To give a sense of that, we'll simulate 20 beta distributions, all with $\omega = .25$ but with $\theta$ increasing from 10 to 200, by 10. We'll then plot them with a little help from the [**ggridges** package](https://CRAN.R-project.org/package=ggridges) [@R-ggridges].
 
-```{r, fig.width = 5, fig.height = 5, message = F, warning = F}
+```{r, fig.width = 5, fig.height = 5, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(cowplot)
 library(ggridges)
@@ -86,7 +80,7 @@ tibble(k = seq(from = 10, to = 200, by = 10)) %>%
 
 Holding $\omega$ constant, the density gets more concentrated around $\omega$ as $\kappa$ increases. But back to the text: "Now we make the essential expansion of our scenario into the realm of hierarchical models. Instead of thinking of $\omega$ as fixed by prior knowledge, we think of it as another parameter to be estimated" (p. 224). In the hierarchical model diagram of Figure 9.1, Kruschke depicted how we might treat $\omega$ as a parameter controlled by the prior distribution, $\operatorname{beta}(A_\omega, B_\omega)$. Here's our version of the diagram.
 
-```{r, fig.width = 3.8, fig.height = 5, message = F}
+```{r, fig.width = 3.8, fig.height = 5, message = FALSE}
 library(ggforce)
 library(patchwork)
 library(dplyr)
@@ -119,14 +113,13 @@ p2 <-
   geom_bspline(aes(color = line),
                size = 2/3, show.legend = F) + 
   annotate(geom = "text",
-           x = 0, y = 0.125,
-           label = "omega(italic(K) - 2) + 1*', 
-           '*(1 - omega)(italic(K) - 2) + 1",
-           size = 7, parse = T, family = "Times", hjust = 0) +
+    x = 0, y = 0.125,
+    label = "omega(italic(K) - 2) + 1*', '*(1 - omega)(italic(K) - 2) + 1",
+    size = 7, parse = TRUE, family = "Times", hjust = 0) +
   annotate(geom = "text",
            x = 1/3, y = 0.7,
            label = "'~'",
-           size = 10, parse = T, family = "Times") +
+           size = 10, parse = TRUE, family = "Times") +
   scale_color_manual(values = c("grey75", "black")) +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 2)) +
   ylim(0, 1) +
@@ -161,7 +154,7 @@ p4 <-
   annotate(geom = "text",
            x = 0.375, y = 1/3,
            label = "'~'",
-           size = 10, family = "Times", parse = T) +
+           size = 10, family = "Times", parse = TRUE) +
   xlim(0, 1) +
   theme_void()
 
@@ -180,7 +173,7 @@ p5 <-
   annotate(geom = "text",
            x = 0.5, y = 0.94,
            label = "theta", 
-           size = 7, family = "Times", parse = T) +
+           size = 7, family = "Times", parse = TRUE) +
   xlim(-0.75, 1.75) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5))
@@ -192,7 +185,7 @@ p6 <-
          label = c("'~'", "italic(i)")) %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = c(10, 7), parse = T, family = "Times") +
+  geom_text(size = c(10, 7), parse = TRUE, family = "Times") +
   geom_segment(x = 0.5, xend = 0.5,
                y = 1, yend = 0,
                arrow = my_arrow) +
@@ -206,7 +199,7 @@ p7 <-
          label = "italic(y[i])") %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = 7, parse = T, family = "Times") +
+  geom_text(size = 7, parse = TRUE, family = "Times") +
   xlim(0, 1) +
   theme_void()
 
@@ -230,7 +223,7 @@ layout <- c(
 
 Note that whereas this model includes a hierarchical prior for $\omega$, the hyperparameter $K$ is fixed across cases.
 
-### Posterior via grid approximation.
+### Posterior via Grid Approximation
 
 > When the parameters extend over a finite domain, and there are not too many of them, then we can approximate the posterior via grid approximation. In our present situation, we have the parameters $\theta$ and $\omega$ that both have finite domains, namely the interval $[0, 1]$. Therefore, a grid approximation is tractable and the distributions can be readily graphed. (p. 226)
 
@@ -247,7 +240,13 @@ That is, the mode of $\operatorname{beta}(2, 2)$ is $0.5$.
 
 We won't be able to make the wireframe plots on the left of Figure 9.2, but we can make the others. We'll make the initial data following Kruschke's (p. 226) formulas.
 
-$$p(\theta, \omega) = p \left( \theta \mid \omega \right) \; p(\omega) = \operatorname{beta} \left(\theta \mid \omega (100 - 2) + 1, (1 - \omega) (100 - 2) + 1 \right) \; \operatorname{beta} \left(\omega \mid 2, 2 \right)$$
+```{=latex}
+\begin{align}
+p(\theta, \omega) &= p \left( \theta \mid \omega \right) \; p(\omega) \\
+&= \operatorname{beta} \left( \theta \mid \omega (100 - 2) + 1, (1 - \omega) (100 - 2) + 1 \right) \\
+&= \operatorname{beta} \left(\omega \mid 2, 2 \right)
+\end{align}
+```
 
 First, we'll make a custom function, `make_prior()` based on the formulas.
 
@@ -293,11 +292,11 @@ head(d)
 
 Now we're ready to plot the top middle panel of Figure 9.2.
 
-```{r, fig.height = 3, warning = F, message = F}
+```{r, fig.height = 3, warning = FALSE, message = FALSE}
 library(cowplot)
 d %>% 
   ggplot(aes(x = theta, y = omega, fill = prior)) +
-  geom_raster(interpolate = T) +
+  geom_raster(interpolate = TRUE) +
   scale_fill_viridis_c(option = "A") +
   labs(x = expression(theta),
        y = expression(omega)) +
@@ -308,13 +307,13 @@ d %>%
   theme(legend.position = "none")
 ```
 
-You could also make this with `geom_tile()`, but `geom_raster()` with the `interpolate = T` argument smooths the color transitions. Since we are going to be making a lot of plots like this in this chapter, we should consider streamlining our plotting code. In [Chapter 17](https://ggplot2-book.org/programming.html) of Wichkam's [-@wickhamGgplot2ElegantGraphics2016] *ggplot2: Elegant graphics for data analysis*, we learn how to make a custom geom. Here we'll use those skills to wrap the bulk of the plot code from above into a single geom we'll call `geom_2dd()`, for 2D-density plots.
+You could also make this with `geom_tile()`, but `geom_raster()` with the `interpolate = TRUE` argument smooths the color transitions. Since we are going to be making a lot of plots like this in this chapter, we should consider streamlining our plotting code. In [Chapter 17](https://ggplot2-book.org/programming.html) of Wichkam's [-@wickhamGgplot2ElegantGraphics2016] *ggplot2: Elegant graphics for data analysis*, we learn how to make a custom geom. Here we'll use those skills to wrap the bulk of the plot code from above into a single geom we'll call `geom_2dd()`, for 2D-density plots.
 
 ```{r}
 geom_2dd <- function(...) {
   
   list(
-    geom_raster(interpolate = T),
+    geom_raster(interpolate = TRUE),
     scale_fill_viridis_c(option = "A"),
     scale_x_continuous(expand = c(0, 0), limits = c(0, 1), breaks = 0:5 / 5),
     scale_y_continuous(expand = c(0, 0), limits = c(0, 1), breaks = 0:5 / 5),
@@ -328,7 +327,7 @@ geom_2dd <- function(...) {
 
 Try it out.
 
-```{r, fig.height = 3, warning = F}
+```{r, fig.height = 3, warning = FALSE}
 d %>% 
   ggplot(aes(x = theta, y = omega, fill = prior)) +
   geom_2dd() +
@@ -338,7 +337,7 @@ d %>%
 
 If we collapse "the joint prior across $\theta$" (i.e., `group_by(omega)` and then `sum(prior)`), we plot the marginal distribution for $p(\omega)$ as seen in the top right panel.
 
-```{r, fig.width = 3.5, fig.height = 3, warning = F, message = F}
+```{r, fig.width = 3.5, fig.height = 3, warning = FALSE, message = FALSE}
 library(viridis)
 
 a_purple <- viridis_pal(option = "A")(9)[4]
@@ -386,7 +385,7 @@ geom_marginal <- function(ul, ...) {
 
 Try it out.
 
-```{r, fig.width = 3.5, fig.height = 3, message = F}
+```{r, fig.width = 3.5, fig.height = 3, message = FALSE}
 d %>%
   group_by(omega) %>% 
   summarise(prior = sum(prior)) %>% 
@@ -400,7 +399,7 @@ d %>%
 
 We'll follow a similar procedure to get the marginal probability distribution for `theta`.
 
-```{r, fig.width = 3.5, fig.height = 3, message = F}
+```{r, fig.width = 3.5, fig.height = 3, message = FALSE}
 d %>%
   group_by(theta) %>% 
   summarise(prior = sum(prior)) %>% 
@@ -474,7 +473,7 @@ bernoulli_likelihood <- function(theta, data) {
 
 Time to feed `theta` and our data into the `bernoulli_likelihood()` function, which will allow us to make the 2-dimensional density plot in the middle of Figure 9.2.
 
-```{r, fig.height = 3, warning = F}
+```{r, fig.height = 3, warning = FALSE}
 # define the data
 n <- 12
 z <- 9
@@ -508,7 +507,7 @@ From Formula 9.1, the posterior $p(\theta, \omega | D)$ is proportional to $p(D 
 
 Our first depiction will be the middle panel of the second row from the bottom.
 
-```{r, fig.height = 3, warning = F}
+```{r, fig.height = 3, warning = FALSE}
 d <-
   d %>% 
   mutate(posterior = (likelihood * prior) / sum(likelihood * prior)) 
@@ -524,7 +523,7 @@ Although the likelihood was orthogonal to $\omega$, conditioning the prior for $
 
 Making the marginal plots for `posterior` is much like when making them for `prior`, above.
 
-```{r, fig.width = 3.5, fig.height = 3, message = F}
+```{r, fig.width = 3.5, fig.height = 3, message = FALSE}
 # for omega
 d %>%
   group_by(omega) %>% 
@@ -580,7 +579,7 @@ d <-
 
 Here's the initial data and the 2-dimensional density plot for the prior, the middle plot in the top row of Figure 9.3.
 
-```{r, fig.height = 3, warning = F}
+```{r, fig.height = 3, warning = FALSE}
 d %>% 
   ggplot(aes(x = theta, y = omega, fill = prior)) +
   geom_2dd() +
@@ -590,7 +589,7 @@ d %>%
 
 That higher certainty in $\omega$ resulted in a two-dimensional density plot where the values on the $y$-axis were concentrated near .5. This will have down-the-road consequences for the posterior. But before we get there, we'll average over `omega` and `theta` to plot their marginal prior distributions.
 
-```{r, fig.width = 3.5, fig.height = 3, message = F}
+```{r, fig.width = 3.5, fig.height = 3, message = FALSE}
 # for omega
 d %>%
   group_by(omega) %>% 
@@ -632,7 +631,7 @@ d %>%
 
 Now we're ready for the likelihood.
 
-```{r, fig.height = 3, warning = F, message = F}
+```{r, fig.height = 3, warning = FALSE, message = FALSE}
 # compute
 d <-
   d %>% 
@@ -647,9 +646,9 @@ d %>%
        y = expression(omega))
 ```
 
-Now on to the posterior. Our first depiction will be the middle panel of the second row from the bottom of Figure 9.3. This will be $p(\theta, \omega | y)$.
+Now on to the posterior. Our first depiction will be the middle panel of the second row from the bottom of Figure 9.3. This will be $p \left( \theta, \omega \mid y \right)$.
 
-```{r, fig.height = 3, warning = F}
+```{r, fig.height = 3, warning = FALSE}
 # compute the posterior
 d <-
   d %>% 
@@ -665,7 +664,7 @@ d %>%
 
 Here are the marginal plots for the two dimensions in our `posterior`.
 
-```{r, fig.width = 3.5, fig.height = 3, message = F}
+```{r, fig.width = 3.5, fig.height = 3, message = FALSE}
 # for omega
 d %>%
   group_by(omega) %>% 
@@ -707,13 +706,13 @@ d %>%
 
 > In summary, Bayesian inference in a hierarchical model is merely Bayesian inference on a joint parameter space, but we look at the joint distribution (e.g., $p(\theta, \omega)$) in terms of its marginal on a subset of parameters (e.g., $p(\omega)$) and its conditional distribution for other parameters (e.g., p$p(\theta | \omega)$. We do this primarily because it is meaningful in the context of particular models. (p. 230)
 
-## Multiple coins from a single mint
+## Multiple Coins from a Single Mint
 
 > What if we collect data from more than one coin created by the mint? If each coin has its own distinct bias $\theta_s$, then we are estimating a distinct parameter value for each coin, and using all the data to estimate $\omega$. (p. 230)
 
 Kruschke broke down a model of this form with his diagram in Figure 9.4. Here's our version of that figure.
 
-```{r, fig.width = 3.8, fig.height = 5.2, message = F}
+```{r, fig.width = 3.8, fig.height = 5.2, message = FALSE}
 p1 <-
   tibble(x = seq(from = 0.01, to = 0.99, by = 0.01),
        d = (dbeta(x, 2, 2)) / max(dbeta(x, 2, 2))) %>% 
@@ -742,14 +741,13 @@ p2 <-
   geom_bspline(aes(color = line),
                size = 2/3, show.legend = F) + 
   annotate(geom = "text",
-           x = 0, y = 0.125,
-           label = "omega(italic(K) - 2) + 1*', 
-           '*(1 - omega)(italic(K) - 2) + 1",
-           size = 7, parse = T, family = "Times", hjust = 0) +
+   x = 0, y = 0.125,
+   label = "omega(italic(K) - 2) + 1*', '*(1 - omega)(italic(K) - 2) + 1",
+   size = 7, parse = TRUE, family = "Times", hjust = 0) +
   annotate(geom = "text",
            x = 1/3, y = 0.7,
            label = "'~'",
-           size = 10, parse = T, family = "Times") +
+           size = 10, parse = TRUE, family = "Times") +
   scale_color_manual(values = c("grey75", "black")) +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 2)) +
   ylim(0, 1) +
@@ -775,7 +773,7 @@ p4 <-
          label = c("'~'", "italic(s)")) %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = c(10, 7), parse = T, family = "Times") +
+  geom_text(size = c(10, 7), parse = TRUE, family = "Times") +
   geom_segment(x = 0.5, xend = 0.5,
                y = 1, yend = 0,
                arrow = my_arrow) +
@@ -797,7 +795,7 @@ p5 <-
   annotate(geom = "text",
            x = 0.5, y = 0.92,
            label = "theta[italic(s)]", 
-           size = 7, family = "Times", parse = T) +
+           size = 7, family = "Times", parse = TRUE) +
   xlim(-0.75, 1.75) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5))
@@ -809,7 +807,7 @@ p6 <-
          label = c("'~'", "italic(i)*'|'*italic(s)")) %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = c(10, 7), parse = T, family = "Times") +
+  geom_text(size = c(10, 7), parse = TRUE, family = "Times") +
   geom_segment(x = 0.5, xend = 0.5,
                y = 1, yend = 0,
                arrow = my_arrow) +
@@ -823,7 +821,7 @@ p7 <-
          label = "italic(y)[italic(i)*'|'*italic(s)]") %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = 7, parse = T, family = "Times") +
+  geom_text(size = 7, parse = TRUE, family = "Times") +
   xlim(0, 2) +
   theme_void()
 
@@ -847,7 +845,7 @@ layout <- c(
 
 The diagram accounts for multiple coins with the $s$ index.
 
-### Posterior via grid approximation.
+### Posterior via Grid Approximation
 
 Now we have two coins,
 
@@ -898,7 +896,7 @@ Unlike what Kruschke said in the text, we're not using a 3D data array. Rather, 
 
 "Because the parameter space is 3D, a distribution on it cannot easily be displayed on a 2D page. Instead, Figure 9.5 shows various marginal distributions" (p. 234). The consequence of that is when we marginalize, we'll have to group by the two variables we'd like to retain for the plot. For example, the plots in the left and middle columns of the top row are the same save for their indices. So let's just do the plot for `theta_1`. In order to marginalize over `theta_2`, we'll need to `group_by(theta_1, omega)` and then `summarise(prior = sum(prior))`.
 
-```{r, fig.height = 3, message = F, warning = F}
+```{r, fig.height = 3, message = FALSE, warning = FALSE}
 d %>% 
   group_by(theta_1, omega) %>% 
   summarise(prior = sum(prior)) %>% 
@@ -911,7 +909,7 @@ d %>%
 
 But we just have to average over `omega` and `theta_1` to plot their marginal prior distributions.
 
-```{r, fig.width = 3.5, fig.height = 3, message = F}
+```{r, fig.width = 3.5, fig.height = 3, message = FALSE}
 # for omega
 d %>%
   group_by(omega) %>% 
@@ -936,11 +934,11 @@ d %>%
 
 Before we make the plots in the middle row of Figure 9.5, we need to add the likelihoods. Recall that we're presuming the coin flips contained in $D_1$ and $D_2$ are independent. Kruschke explained in [Section 7.4.1][Prior, likelihood and posterior for two biases.], that
 
-> independence of the data across the two coins means that the data from coin 1 depend only on the bias in coin 1, and the data from coin 2 depend only on the bias in coin 2, which can be expressed formally as $p(y_1 | \theta_1, \theta_2) = p(y_1 | \theta_1)$ and $p(y_2 | \theta_1, \theta_2) = p(y_2 | \theta_2)$. (p. 164)
+> independence of the data across the two coins means that the data from coin 1 depend only on the bias in coin 1, and the data from coin 2 depend only on the bias in coin 2, which can be expressed formally as $p \left( y_1 \mid \theta_1, \theta_2 \right) = p \left( y_1 \mid \theta_1 \right)$ and $p \left( y_2 mid \theta_1, \theta_2 \right) = p \left( y_2 \mid \theta_2 \right)$. (p. 164)
 
 The likelihood function for our two series of coin flips is then
 
-$$p(D | \theta_1, \theta_2) = \left ( \theta_1^{z_1} (1 - \theta_1) ^ {N_1 - z_1} \right ) \left ( \theta_2^{z_2} (1 - \theta_2) ^ {N_2 - z_2} \right ).$$
+$$p \left( D \mid \theta_1, \theta_2 \right) = \left[ \theta_1^{z_1} \left( 1 - \theta_1 \right) ^ {N_1 - z_1} \right] \left[ \theta_2^{z_2} \left(1 - \theta_2 \right) ^ {N_2 - z_2} \right].$$
 
 The upshot is we can compute the likelihoods for $D_1$ and $D_2$ separately and just multiply them together.
 
@@ -969,7 +967,7 @@ head(d)
 
 Now after a little `group_by()` followed by `summarise()` we can plot the two marginal likelihoods, the two plots in the middle row of Figure 9.5.
 
-```{r, fig.height = 3, warning = F, message = F}
+```{r, fig.height = 3, warning = FALSE, message = FALSE}
 # likelihood_1
 d %>%
   group_by(theta_1, omega) %>% 
@@ -993,7 +991,7 @@ d %>%
 
 The likelihoods look good. Next we compute the posterior in the same way we've done before: multiply the prior and the likelihood and then divide by their sum in order to convert the results to a probability metric.
 
-```{r, fig.height = 3, warning = F, message = F}
+```{r, fig.height = 3, warning = FALSE, message = FALSE}
 # compute
 d <-
   d %>% 
@@ -1022,7 +1020,7 @@ d %>%
 
 Here's the right plot on the second row from the bottom, the posterior distribution for $\omega$.
 
-```{r, fig.width = 3.5, fig.height = 3, message = F}
+```{r, fig.width = 3.5, fig.height = 3, message = FALSE}
 # for omega
 d %>%
   group_by(omega) %>% 
@@ -1037,7 +1035,7 @@ d %>%
 
 Now here are the marginal posterior plots on the bottom row of Figure 9.5.
 
-```{r, fig.width = 3.5, fig.height = 3, message = F}
+```{r, fig.width = 3.5, fig.height = 3, message = FALSE}
 # for theta_1
 d %>%
   group_by(theta_1) %>% 
@@ -1079,7 +1077,7 @@ One more step: for the 2D density plots in this section, we'll omit the `coord_e
 geom_2dd <- function(...) {
   
   list(
-    geom_raster(interpolate = T),
+    geom_raster(interpolate = TRUE),
     scale_fill_viridis_c(option = "A"),
     scale_x_continuous(expand = c(0, 0), limits = c(0, 1), breaks = 0:5 / 5),
     scale_y_continuous(expand = c(0, 0), limits = c(0, 1), breaks = 0:5 / 5),
@@ -1093,7 +1091,7 @@ geom_2dd <- function(...) {
 
 Okay, here are our two 2D prior density plots.
 
-```{r, fig.height = 3, fig.width = 3.25, message = F, warning = F}
+```{r, fig.height = 3, fig.width = 3.25, message = FALSE, warning = FALSE}
 p11 <-
   d %>% 
   group_by(theta_1, omega) %>% 
@@ -1102,7 +1100,7 @@ p11 <-
   geom_2dd(font_size = 10) +
   annotate(geom = "text", x = 0.05, y = 0.925, 
            label = "p(list(theta[1], omega))", 
-           parse = T, color = "white", hjust = 0) +
+           parse = TRUE, color = "white", hjust = 0) +
   labs(x = expression(theta[1]),
        y = expression(omega))
 
@@ -1114,7 +1112,7 @@ p12 <-
   geom_2dd(font_size = 10) +
   annotate(geom = "text", x = 0.05, y = 0.925, 
            label = "p(list(theta[2], omega))", 
-           parse = T, color = "white", hjust = 0) +
+           parse = TRUE, color = "white", hjust = 0) +
   labs(x = expression(theta[2]),
        y = expression(omega))
 
@@ -1124,7 +1122,7 @@ p12
 
 Now we'll average over `omega` and `theta` to plot their marginal prior distributions.
 
-```{r, fig.width = 3.5, fig.height = 3, message = F}
+```{r, fig.width = 3.5, fig.height = 3, message = FALSE}
 # for omega
 p13 <-
   d %>%
@@ -1166,7 +1164,7 @@ p22
 
 Let's get those likelihoods in there and plot.
 
-```{r, fig.height = 3, fig.width = 3.25, warning = F, message = F}
+```{r, fig.height = 3, fig.width = 3.25, warning = FALSE, message = FALSE}
 # D1: 3 heads, 12 tails
 n <- 15
 z <- 3
@@ -1216,7 +1214,7 @@ p32
 
 Compute the posterior and make the left and middle plots of the second row to the bottom of Figure 9.6.
 
-```{r, fig.height = 3, fig.width = 3.25, warning = F, message = F}
+```{r, fig.height = 3, fig.width = 3.25, warning = FALSE, message = FALSE}
 d <-
   d %>% 
   mutate(posterior = (prior * likelihood) / sum(prior * likelihood))
@@ -1231,7 +1229,7 @@ p41 <-
   geom_2dd(font_size = 10) +
   annotate(geom = "text", x = 0.05, y = 0.925, 
            label = expression(p(list(theta[1], omega)*"|"*D)), 
-           parse = T, color = "white", hjust = 0) +
+           parse = TRUE, color = "white", hjust = 0) +
   labs(x = expression(theta[1]),
        y = expression(omega))
 
@@ -1245,7 +1243,7 @@ p42 <-
   geom_2dd(font_size = 10) +
   annotate(geom = "text", x = 0.05, y = 0.925, 
            label = expression(p(list(theta[2], omega)*"|"*D)), 
-           parse = T, color = "white", hjust = 0) +
+           parse = TRUE, color = "white", hjust = 0) +
   labs(x = expression(theta[2]),
        y = expression(omega))
 
@@ -1255,7 +1253,7 @@ p42
 
 Here's the right plot on the same row, the posterior distribution for $\omega$.
 
-```{r, fig.width = 3.5, fig.height = 3, message = F}
+```{r, fig.width = 3.5, fig.height = 3, message = FALSE}
 # for omega
 p43 <-
   d %>%
@@ -1273,7 +1271,7 @@ p43
 
 Finally, here are the marginal posterior plots on the bottom row of Figure 9.6.
 
-```{r, fig.width = 3.5, fig.height = 3, message = F}
+```{r, fig.width = 3.5, fig.height = 3, message = FALSE}
 # for theta_1
 p51 <-
   d %>%
@@ -1313,7 +1311,7 @@ p23 <-
   text %>% 
   ggplot(aes(x = x, y = y, label = label)) +
   geom_text(aes(size = size), 
-            parse = T, hjust = 0, show.legend = F) +
+            parse = TRUE, hjust = 0, show.legend = F) +
   scale_size_continuous(range = c(3.5, 5.5)) +
   coord_cartesian(xlim = c(1, 2),
                   ylim = c(4, 11)) +
@@ -1359,22 +1357,22 @@ p53 <-
 
 Okay, let's make the full version of Figure 9.6.
 
-```{r, fig.width = 6.5, fig.height = 9, warning = F, message = F}
+```{r, fig.width = 6.5, fig.height = 9, warning = FALSE, message = FALSE}
 (p11 / p21 / p31 / p41 / p51) | (p12 / p22 / p32 / p42 / p52) | 
         (p13 / p23 / p33 / p43 / p53)
 ```
 
-Oh mamma!
+Oh, mamma!
 
 > The grid approximation displayed in Figures 9.5 and 9.6 used combs of only [101] points on each parameter ($\omega$, $\theta_1$, and $\theta_2$). This means that the 3D grid had [101^3^ = 1,030,301] points, which is a size that can be handled easily on an ordinary desktop computer of the early 21st century. It is interesting to remind ourselves that the grid approximation displayed in Figures 9.5 and 9.6 would have been on the edge of computability 50 years ago, and would have been impossible 100 years ago. The number of points in a grid approximation can get hefty in a hurry. If we were to expand the example by including a third coin, with its parameter $\theta_3$, then the grid would have [101^4^ = 104,060,401] points, which already strains small computers. Include a fourth coin, and the grid contains over [10 billion] points. Grid approximation is not a viable approach to even modestly large problems, which we encounter next. (p. 235)
 
 In case you didn't catch it, we used different numbers of points to evaluate each parameter. Whereas Kruschke indicated in the text he only used 50, we used 101. That value of 101 came from how we defined our `parameter_space` with the code `seq(from = 0, to = 1, by = 0.01)`. The reason we used a more densely-packed parameter space was to get smoother-looking 2D density plots.
 
-### A realistic model with MCMC.
+### A Realistic Model with MCMC
 
 In this section, Kruschke freed up the previously fixed value of $K$, now letting $\kappa$ vary hierarchically with a gamma prior. He depicted the model in Figure 9.7. Here's our version of the figure.
 
-```{r, fig.width = 3.85, fig.height = 5, message = F}
+```{r, fig.width = 3.85, fig.height = 5, message = FALSE}
 # a beta density
 p1 <-
   tibble(x = seq(from = 0.01, to = 0.99, by = 0.01),
@@ -1429,11 +1427,11 @@ p3 <-
   annotate(geom = "text",
            x = 0, y = 0.1,
            label = "omega(kappa-2)+1*', '*(1-omega)(kappa-2)+1",
-           size = 7, parse = T, family = "Times", hjust = 0) +
+           size = 7, parse = TRUE, family = "Times", hjust = 0) +
   annotate(geom = "text",
            x = c(1/3, 1.15), y = .7,
            label = "'~'",
-           size = 10, parse = T, family = "Times") +
+           size = 10, parse = TRUE, family = "Times") +
   scale_color_manual(values = c("grey75", "black")) +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 2)) +
   ylim(0, 1) +
@@ -1460,7 +1458,7 @@ p5 <-
          label = c("'~'", "italic(s)")) %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = c(10, 7), parse = T, family = "Times") +
+  geom_text(size = c(10, 7), parse = TRUE, family = "Times") +
   geom_segment(x = 0.5, xend = 0.5,
                y = 1, yend = 0,
                arrow = my_arrow) +
@@ -1482,7 +1480,7 @@ p6 <-
   annotate(geom = "text",
            x = 0.5, y = 0.94,
            label = "theta", 
-           size = 7, family = "Times", parse = T) +
+           size = 7, family = "Times", parse = TRUE) +
   xlim(-0.75, 1.75) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5))
@@ -1494,7 +1492,7 @@ p7 <-
          label = c("'~'", "italic(i)*'|'*italic(s)")) %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = c(10, 7), parse = T, family = "Times") +
+  geom_text(size = c(10, 7), parse = TRUE, family = "Times") +
   geom_segment(x = 0.5, xend = 0.5,
                y = 1, yend = 0,
                arrow = my_arrow) +
@@ -1508,7 +1506,7 @@ p8 <-
          label = "italic(y[i])['|'][italic(s)]") %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = 7, parse = T, family = "Times") +
+  geom_text(size = 7, parse = TRUE, family = "Times") +
   xlim(0, 1) +
   theme_void()
 
@@ -1605,15 +1603,15 @@ gamma_param <- gamma_s_and_r_from_mode_sd(mode = 10, sd = 100)
 str(gamma_param)
 ```
 
-### Doing it with ~~JAGS~~ brms.
+### Doing it with ~~JAGS~~ brms
 
 Unlike JAGS, the **brms** `formula` will not correspond as closely to the schematic in Figure 9.7. You'll see in just a bit.
 
-### Example: Therapeutic touch.
+### Example: Therapeutic Touch
 
 Load the data from the `TherapeuticTouchData.csv` file [see @rosaCloseLookTherapeutic1998].
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 my_data <- read_csv("~/Desktop/DBDA/data.R/TherapeuticTouchData.csv")
 
 glimpse(my_data)
@@ -1636,7 +1634,7 @@ my_data %>%
 
 And here's our Figure 9.9.
 
-```{r, fig.width = 4, fig.height = 3.25, message = F, warning = F}
+```{r, fig.width = 4, fig.height = 3.25, message = FALSE, warning = FALSE}
 my_data %>% 
   group_by(s) %>% 
   summarize(mean = mean(y)) %>%
@@ -1651,7 +1649,7 @@ my_data %>%
 
 Let's open **brms**.
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 library(brms)
 ```
 
@@ -1661,7 +1659,7 @@ Note the `family = bernoulli(link = logit)` argument. In work-a-day regression w
 
 In case you're curious, the logit of $\theta$ follows the formula
 
-$$\operatorname{logit}(\theta) = \log (\theta/[1 - \theta] ).$$
+$$\operatorname{logit}(\theta) = \log \left( \frac{\theta}{1 - \theta} \right).$$
 
 But anyway, we'll be doing logistic regression using the logit link. Kruschke covered this in detail in [Chapter 21][Dichotomous Predicted Variable].
 
@@ -1689,7 +1687,7 @@ plot(fit9.1, widths = c(2, 3))
 
 The trace plots indicate no problems with convergence. We'll need to extract the posterior draws with `as_draws_df()` and open the **bayesplot** package before we can examine the autocorrelations.
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 draws <- as_draws_df(fit9.1)
 
 library(bayesplot)
@@ -1697,7 +1695,7 @@ library(bayesplot)
 
 One of the nice things about **bayesplot** is it returns **ggplot2** objects. As such, we can amend their theme settings to be consistent with our other **ggplot2** plots. Here we'll amend `bayesplot::mcmc_acf()` to the `theme_cowplot()` theme.
 
-```{r, fig.width = 6, fig.height = 4, warning = F, message = F}
+```{r, fig.width = 6, fig.height = 4, warning = FALSE, message = FALSE}
 draws %>% 
   mutate(chain = .chain) %>% 
   mcmc_acf(pars = vars(b_Intercept, sd_s__Intercept), lags = 10) +
@@ -1712,7 +1710,7 @@ neff_ratio(fit9.1) %>%
   theme_cowplot(font_size = 12)
 ```
 
-The $N_{eff}/N$ ratio values for our model parameters were excellent. Here's a numeric summary of the model.
+The $N_{\rm eff}/N$ ratio values for our model parameters were excellent. Here's a numeric summary of the model:
 
 ```{r}
 print(fit9.1)
@@ -1720,7 +1718,7 @@ print(fit9.1)
 
 We'll need `brms::inv_logit_scaled()` to convert the model parameters to predict $\theta$ rather than $\operatorname{logit}(\theta)$. After the conversions, we'll be ready to make the histograms in the lower portion of Figure 9.10.
 
-```{r, fig.width = 8, fig.height = 4, warning = F, message = F}
+```{r, fig.width = 8, fig.height = 4, warning = FALSE, message = FALSE}
 # load
 library(tidybayes)
 
@@ -1765,7 +1763,7 @@ draws_small %>%
 
 And here are the Figure 9.10 scatter plots.
 
-```{r, fig.width = 6.5, fig.height = 2, warning = F, message = F}
+```{r, fig.width = 6.5, fig.height = 2, warning = FALSE, message = FALSE}
 p1 <-
   draws_small %>% 
   ggplot(aes(x = `theta[1]`, y = `theta[14]`)) +
@@ -1787,12 +1785,13 @@ p3 <-
 (p1 + p2 + p3) &
   coord_cartesian(xlim = c(0, 1),
                   ylim = c(0, 1)) & 
-  theme_minimal_grid()
+  theme_minimal_grid() & 
+  theme(text=element_text(size=14))
 ```
 
 This is posterior distribution for the population estimate for $\theta$, which roughly corresponds to the upper right histogram of $\omega$ in Figure 9.10.
 
-```{r, fig.width = 3.25, fig.height = 2.5, warning = F, message = F}
+```{r, fig.width = 3.25, fig.height = 2.5, warning = FALSE, message = FALSE}
 # this part makes it easier to set the break points in `scale_x_continuous()` 
 labels <-
   draws %>% 
@@ -1816,7 +1815,7 @@ draws %>%
 
 I'm not aware there's a straight conversion to get $\sigma$ in a probability metric. As far as I can tell, you have to first use `coef()` to "extract [the] model coefficients, which are the sum of population-level effects and corresponding group-level effects" [@brms2021RM, p. 54]. With the model coefficient draws in hand, you can index them by posterior iteration, group them by that index, compute the iteration-level $SD$s, and then plot the distribution of the $SD$s.
 
-```{r, fig.width = 3.25, fig.height = 2.5, warning = F, message = F}
+```{r, fig.width = 3.25, fig.height = 2.5, warning = FALSE, message = FALSE}
 # the tibble of the primary data
 sigmas <-
   coef(fit9.1, summary = F)$s %>% 
@@ -1849,7 +1848,7 @@ sigmas %>%
 
 And now you have a sense of how to do all those by hand, `bayesplot::mcmc_pairs()` offers a fairly quick way to get a good portion of Figure 9.10.
 
-```{r, fig.width = 5.5, fig.height = 5, warning = F, message = F}
+```{r, fig.width = 5.5, fig.height = 5, warning = FALSE, message = FALSE}
 color_scheme_set("purple")
 bayesplot_theme_set(theme_default() + theme_minimal_grid())
 
@@ -1886,7 +1885,7 @@ You'll note that plot corresponds to the upper right panel of Figure 9.11.
 
 Recall that we used a logistic regression model with a `normal(0, 1.5)` prior on the intercept. If you sample from `normal(0, 1.5)` and then convert the draws using `brms::inv_logit_scaled()`, you'll discover that our `normal(0, 1.5)` prior was virtually flat on the probability scale. Here we'll show the consequence of a variety of zero-mean Gaussian priors for the intercept of a logistic regression model.
 
-```{r prior_sim, cache = T, fig.width = 6.5, fig.height = 4.875}
+```{r prior_sim, cache = TRUE, fig.width = 6.5, fig.height = 4.875}
 # define a function
 r_norm <- function(i, n = 10000) {
   
@@ -1944,7 +1943,7 @@ head(prior_draws)
 
 And here we'll take a subset of the columns in `prior_draws`, transform the results to the probability metric, and save.
 
-```{r, warning = F}
+```{r, warning = FALSE}
 prior_draws <-
   prior_draws %>% 
   transmute(`theta[1]`  = b_Intercept + `r_s[S01,Intercept]`,
@@ -2023,9 +2022,9 @@ In case you were curious, here are the Pearson's correlation coefficients among 
 cor(prior_draws) %>% round(digits = 2)
 ```
 
-## Shrinkage in hierarchical models
+## Shrinkage in Hierarchical Models
 
-"In typical hierarchical models, the estimates of low-level parameters are pulled closer together than they would be if there were not a higher-level distribution. This pulling together is called *shrinkage* of the estimates" (p. 245, *emphasis* in the original)
+"In typical hierarchical models, the estimates of low-level parameters are pulled closer together than they would be if there were not a higher-level distribution. This pulling together is called *shrinkage* of the estimates" (p. 245; *emphasis* in the original).
 
 Further,
 
@@ -2033,7 +2032,7 @@ Further,
 
 Recall Formula 9.4 from page 223,
 
-$$\theta \sim \operatorname{beta} \left(\omega(\kappa - 2) + 1 \right), (1 - \omega)(\kappa - 2) + 1).$$
+$$\theta \sim \operatorname{beta} \left[ \left(\omega(\kappa - 2) + 1 \right), (1 - \omega)(\kappa - 2) + 1) \right].$$
 
 With that formula, we can express `dbeta()`'s `shape1` and `shape2` in terms of $\omega$ and $\kappa$ and make the shapes in Figure 9.12.
 
@@ -2066,7 +2065,7 @@ tibble(x = seq(from = 0, to = 1, by = .001)) %>%
 
 Here we'll compare the time it takes to fit `fit1` as either `bernoulli(link = logit)` or `binomial(link = logit)`.
 
-```{r, echo = F, message = F, warning = F}
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
 # save(list = c("stop_time_bernoulli", "start_time_bernoulli", "stop_time_binomial", "start_time_binomial"),
 #      file = "fits/09_fit_times.rda")
 # 
@@ -2075,7 +2074,7 @@ Here we'll compare the time it takes to fit `fit1` as either `bernoulli(link = l
 load("~/Desktop/DBDA/fits/09_fit_times.rda")
 ```
 
-```{r, eval = F}
+```{r, eval = FALSE}
 # bernoulli
 start_time_bernoulli <- proc.time()
 
@@ -2114,13 +2113,13 @@ If you wanted to be rigorous about this, you could do this multiple times in a m
 
 As to the issue of parallel processing, we've been doing this all along. Note our `chains = 4, cores = 4` arguments.
 
-## Extending the hierarchy: Subjects within categories
+## Extending the Hierarchy: Subjects within Categories
 
 > Many data structures invite hierarchical descriptions that may have multiple levels. Software such as ~~JAGS~~ [**brms**] makes it easy to implement hierarchical models, and Bayesian inference makes it easy to interpret the parameter estimates, even for complex nonlinear hierarchical models. Here, we take a look at one type of extended hierarchical model. (p. 251)
 
 As we will address below, our version of Figure 9.13 will look rather different from Kruschke's. It's something of a combination of the sensibilities from Figures 20.2 and 21.10. Even still, the diagram is of three-level model that shares many similarities to Kruschke's and, as we will see, yields very similar results.
 
-```{r, fig.width = 7.75, fig.height = 6.75, warning = F, message = F}
+```{r, fig.width = 7.75, fig.height = 6.75, warning = FALSE, message = FALSE}
 # half-normal density
 p1 <-
   tibble(x = seq(from = 0, to = 3, by = 0.01)) %>% 
@@ -2133,7 +2132,7 @@ p1 <-
   annotate(geom = "text",
            x = 1.5, y = 0.6,
            label = "0*','*~italic(S)[italic(s)*'|'*italic(c)]", 
-           size = 7, family = "Times", parse = T) +
+           size = 7, family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5))
@@ -2150,7 +2149,7 @@ p2 <-
   annotate(geom = "text",
            x = 1.5, y = 0.6,
            label = "0*','*~italic(S)[italic(c)]", 
-           size = 7, family = "Times", parse = T) +
+           size = 7, family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5))
@@ -2167,7 +2166,7 @@ p3 <-
   geom_segment(arrow = my_arrow) +
   annotate(geom = "text",
            x = 0.54, y = 0.6, label = "'~'", 
-           size = 10, family = "Times", parse = T) +
+           size = 10, family = "Times", parse = TRUE) +
   xlim(0, 1) +
   theme_void()
 
@@ -2184,7 +2183,7 @@ p4 <-
            x = c(0, 1.45), y = 0.6,
            hjust = c(0.5, 0),
            label = c("italic(M)[0]", "italic(S)[0]"), 
-           size = 7, family = "Times", parse = T) +
+           size = 7, family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5))
@@ -2202,7 +2201,7 @@ p5 <-
            x = c(0, 1.45), y = 0.6,
            hjust = c(0.5, 0),
            label = c("0", "sigma[italic(s)*'|'*italic(c)]"), 
-           size = 7, family = "Times", parse = T) +
+           size = 7, family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5))
@@ -2220,7 +2219,7 @@ p6 <-
            x = c(0, 1.45), y = 0.6,
            hjust = c(0.5, 0),
            label = c("0", "sigma[italic(c)]"), 
-           size = 7, family = "Times", parse = T) +
+           size = 7, family = "Times", parse = TRUE) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_void() +
   theme(axis.line.x = element_line(size = 0.5))
@@ -2238,7 +2237,7 @@ p7 <-
            x = c(0.10, 0.42, 0.49, 0.81, 0.87), y = 0.6,
            label = c("'~'", "'~'", "italic(s)*'|'*italic(c)", "'~'", "italic(c)"),
            size = c(10, 10, 7, 10, 7), 
-           family = "Times", parse = T) +
+           family = "Times", parse = TRUE) +
   xlim(0, 1) +
   theme_void()
 
@@ -2249,7 +2248,7 @@ p8 <-
          label = "logistic(beta[0]+sum()[italic(s)*'|'*italic(c)]*beta['['*italic(s)*'|'*italic(c)*']']*italic(x)['['*italic(s)*'|'*italic(c)*']'](italic(i))+sum()[italic(c)]*beta['['*italic(c)*']']*italic(x)['['*italic(c)*']'](italic(i)))") %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = 7, parse = T, family = "Times") +
+  geom_text(size = 7, parse = TRUE, family = "Times") +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
   ylim(0, 1) +
   theme_void()
@@ -2261,7 +2260,7 @@ p9 <-
          label = c("'='", "mu[italic(i)*'|'*italic(sc)]")) %>%
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = c(10, 7), parse = T, family = "Times") +
+  geom_text(size = c(10, 7), parse = TRUE, family = "Times") +
   geom_segment(x = 0.5, xend = 0.5,
                y = 1, yend = 0.4,
                arrow = my_arrow) +
@@ -2295,7 +2294,7 @@ p11 <-
          label = c("'~'", "italic(i)*'|'*italic(sc)")) %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = c(10, 7), parse = T, family = "Times") +
+  geom_text(size = c(10, 7), parse = TRUE, family = "Times") +
   geom_segment(x = 0.5, xend = 0.5,
                y = 1, yend = 0,
                arrow = my_arrow) +
@@ -2309,7 +2308,7 @@ p12 <-
          label = "italic(y)[italic(i)*'|'*italic(sc)]") %>% 
   
   ggplot(aes(x = x, y = y, label = label)) +
-  geom_text(size = 7, parse = T, family = "Times") +
+  geom_text(size = 7, parse = TRUE, family = "Times") +
   xlim(0, 2) +
   theme_void()
 
@@ -2339,11 +2338,11 @@ layout <- c(
 
 Though we will be fitting a hierarchical model with subjects $s$ within categories $c$, the higher-level parameters will not be $\omega$ and $\kappa$. As we'll go over, below, we will use the binomial distribution within a more conventional hierarchical logistic regression paradigm. In this paradigm, we have an overall intercept, often called $\alpha$ or $\beta_0$, which will be our analogue to Kruschke's overall $\omega$. For the two grouping categories, $s$ and $c$, we will have $\sigma$ estimates, which express the variability within those grouping. You'll see when we get there.
 
-### Example: Baseball batting abilities by position.
+### Example: Baseball Batting Abilities by Position
 
-Here are the batting average data.
+Here are the batting average data:
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 library(readr)
 my_data <- read_csv("~/Desktop/DBDA/data.R/BattingAverage.csv")
 
@@ -2352,7 +2351,7 @@ glimpse(my_data)
 
 In his footnote #6, Kruschke indicated he retrieved the data from [http://www.baseball-reference.com/leagues/MLB/2012-standard-batting.shtml](http://www.baseball-reference.com/leagues/MLB/2012-standard-batting.shtml) on December of 2012. To give a sense of the data, here are the number of occasions by primary position, `PriPos`, with their median at bat, `AtBats`, values.
 
-```{r, message = F}
+```{r, message = FALSE}
 my_data %>% 
   group_by(PriPos) %>% 
   summarise(n      = n(),
@@ -2387,7 +2386,7 @@ Note how our `color_scheme_set("purple")` line from back up in the `mcmc_pairs()
 
 We might examine the autocorrelations within the chains.
 
-```{r, fig.width = 8, fig.height = 4, warning = F, message = F}
+```{r, fig.width = 8, fig.height = 4, warning = FALSE, message = FALSE}
 draws <- as_draws_df(fit9.2)
 
 draws %>% 
@@ -2397,7 +2396,7 @@ draws %>%
   theme_minimal_hgrid()
 ```
 
-Here's a histogram of the $N_{eff}/N$ ratios.
+Here's a histogram of the $N_{\rm eff}/N$ ratios:
 
 ```{r, fig.width = 6, fig.height = 3}
 fit9.2 %>% 
@@ -2421,7 +2420,7 @@ head(draws)
 
 In the text, Kruschke described the model as having 968 parameters. Our `draws` data frame has one vector for each, with a couple others tacked onto the end. In the hierarchical logistic regression model, the group-specific parameters for the levels of `PriPos` are additive combinations of the global intercept vector, `b_Intercept` and each position-specific vector, `r_PriPos[i.Base,Intercept]`, where `i` is a fill-in for the position of interest. And recall that since the linear model is of the logit of the criterion, we'll need to use `inv_logit_scaled()` to convert that to the probability space.
 
-```{r, warning = F}
+```{r, warning = FALSE}
 draws_small <-
   draws %>% 
   transmute(`1st Base` = (b_Intercept + `r_PriPos[1st.Base,Intercept]`), 
@@ -2586,7 +2585,7 @@ Success!
 
 For Figures 9.15 and 9.16, Kruschke drilled down further into the posterior. To drill along with him, we'll take the opportunity to showcase `fitted()`, the third way **brms** affords us for plotting group-level parameters.
 
-```{r, fig.width = 3.5, fig.height = 2.5, warning = F}
+```{r, fig.width = 3.5, fig.height = 2.5, warning = FALSE}
 # this will make life easier. just go with it
 name_list <- c("Kyle Blanks", "Bruce Chen", "ShinSoo Choo", "Ichiro Suzuki", 
               "Mike Leake", "Wandy Rodriguez", "Andrew McCutchen", 
@@ -2755,7 +2754,7 @@ To make our version of Figure 9.7, we'll have to switch gears from player-specif
 
 Another consideration is if we'd like to use `fitted()` to average across one of the hierarchical grouping parameters (i.e., `(1 | PriPos:Player)`), we'll need to employ the `re_formula` argument. With the line `re_formula = ~ (1 | PriPos)`, we'll instruct `fitted()` to return the `PriPos`-specific effects after averaging across levels of `Player`. The rest is quire similar to our method from above.
 
-```{r, message = F}
+```{r, message = FALSE}
 nd <-
   my_data %>% 
   distinct(PriPos,
@@ -2835,18 +2834,18 @@ Do note that, unlike Kruschke's Figure 9.17, our subplots are all based on $\the
 
 > Finally, we have only looked at a tiny fraction of the relations among the 968 parameters. We could investigate many more comparisons among parameters if we were specifically interested. In traditional statistical testing based on $p$-values (which will be discussed in Chapter 11), we would pay a penalty for even intending to make more comparisons. This is because a $p$ value depends on the space of counter-factual possibilities created from the testing intentions. In a Bayesian analysis, however, decisions are based on the posterior distribution, which is based only on the data (and the prior), not on the testing intention. More discussion of multiple comparisons can be found in [Section 11.4][Multiple comparisons]. (pp. 259--260)
 
-## Session info {-}
+## Session Info {-}
 
 ```{r}
 sessionInfo()
 ```
 
-```{r, echo = F}
+```{r, echo = FALSE}
 # remove our objects
 rm(beta_by_k, p1, p2, p3, my_arrow, p4, p5, p6, p7, layout, alpha, beta, make_prior, parameter_space, d, geom_2dd, a_purple, geom_marginal, text, bernoulli_likelihood, n, z, trial_data, trial_data_1, trial_data_2, p11, p12, p13, p21, p22, p23, p31, p32, p33, p41, p42, p43, p51, p52, p53, p8, length, gamma_s_and_r_from_mean_sd, gamma_s_and_r_from_mode_sd, gamma_param, my_data, fit9.1, draws, draws_small, labels, sigmas, r_norm, fit9.1_prior, prior_draws, omega, kappa1, kappa2, stop_time_bernoulli, start_time_bernoulli, stop_time_binomial, start_time_binomial, p9, p10, fit9.2, make_histogram, make_point, coef_primary_position, coef_small, name_list, nd, fitted_players, fitted_positions)
 ```
 
-```{r, echo = F, message = F, warning = F, results = "hide"}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)

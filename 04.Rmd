@@ -16,23 +16,23 @@ knitr::opts_chunk$set(collapse = TRUE,
 
 # What is This Stuff Called Probability?
 
-> Inferential statistical techniques assign precise measures to our uncertainty about possibilities. Uncertainty is measured in terms of *probability*, and therefore we must establish the properties of probability before we can make inferences about it. This chapter introduces the basic ideas of probability. [@kruschkeDoingBayesianData2015, p. 71, *emphasis* in the original]
+> Inferential statistical techniques assign precise measures to our uncertainty about possibilities. Uncertainty is measured in terms of *probability*, and therefore we must establish the properties of probability before we can make inferences about it. This chapter introduces the basic ideas of probability [@kruschkeDoingBayesianData2015, p. 71; *emphasis* in the original].
 
-## The set of all possible events
+## The Set of All Possible Events
 
 This snip from page 72 is important (*emphasis* in the original):
 
 > Whenever we ask about how likely an outcome is, we always ask with a set of possible outcomes in mind. This set exhausts all possible outcomes, and the outcomes are all mutually exclusive. This set is called the *sample space*.
 
-## Probability: Outside or inside the head
+## Probability: Outside or Inside the Head
 
 It's worthwhile to quote this section in full.
 
 > Sometimes we talk about probabilities of outcomes that are "out there" in the world. The face of a flipped coin is such an outcome: We can observe the flip, and the probability of coming up heads can be estimated by observing several flips.
 >
-> But sometimes we talk about probabilities of things that are not so clearly "out there," and instead are just possible beliefs "inside the head." Our belief about the fairness of a coin is an example of something inside the head. The coin may have an intrinsic physical bias, but now I am referring to our *belief* about the bias. Our beliefs refer to a space of mutually exclusive and exhaustive possibilities. It might be strange to say that we randomly sample from our beliefs, like we randomly sample from a sack of coins. Nevertheless, the mathematical properties of probabilities outside the head and beliefs inside the head are the same in their essentials, as we will see. (pp. 73--74, *emphasis* in the original)
+> But sometimes we talk about probabilities of things that are not so clearly "out there," and instead are just possible beliefs "inside the head." Our belief about the fairness of a coin is an example of something inside the head. The coin may have an intrinsic physical bias, but now I am referring to our *belief* about the bias. Our beliefs refer to a space of mutually exclusive and exhaustive possibilities. It might be strange to say that we randomly sample from our beliefs, like we randomly sample from a sack of coins. Nevertheless, the mathematical properties of probabilities outside the head and beliefs inside the head are the same in their essentials, as we will see (pp. 73--74; *emphasis* in the original).
 
-### Outside the head: Long-run relative frequency.
+### Outside the Head: Long-Run Relative Frequency
 
 > For events outside the head, it's intuitive to think of probability as being the long-run relative frequency of each possible outcome...
 >
@@ -42,31 +42,32 @@ It's worthwhile to quote this section in full.
 
 Before we try coding the simulation, we'll first load the **tidyverse**.
 
-```{r p_unload, echo = F, warning = F, message = F}
+```{r p_unload, echo = FALSE, warning = FALSE, message = FALSE}
 # solves difficulties while publishing
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
 
-```{r, message = F, warning = F}
+```{r, message = FALSE, warning = FALSE}
 library(tidyverse)
 ```
 
 Now run the simulation.
 
-```{r end_prop, message = F, warning = F}
+```{r end_prop, message = FALSE, warning = FALSE}
 n       <- 500  # specify the total number of flips
 p_heads <- 0.5  # specify underlying probability of heads
 
 # Kruschke reported this was the seed he used at the top of page 94
 set.seed(47405)
 
-# here we use that seed to flip a coin n times and compute the running proportion of heads at each flip. 
-# we generate a random sample of n flips (heads = 1, tails = 0)
+# Here we use that seed to flip a coin n times and compute the running 
+# proportion of heads at each flip. 
+# We generate a random sample of n flips (heads = 1, tails = 0)
 d <-
   tibble(flip_sequence = sample(x = c(0, 1), 
                                 prob = c(1 - p_heads, p_heads), 
                                 size = n, 
-                                replace = T)) %>% 
+                                replace = TRUE)) %>% 
   mutate(n = 1:n,
          r = cumsum(flip_sequence)) %>% 
   mutate(run_prop = r / n)
@@ -81,7 +82,7 @@ end_prop <-
 
 Now we're ready to make Figure 4.1.
 
-```{r, message = F, warning = F, fig.width = 4.5, fig.height = 4}
+```{r, message = FALSE, warning = FALSE, fig.width = 4.5, fig.height = 4}
 d %>%
   filter(n < 1000) %>%  # this step cuts down on the time it takes to make the plot
   ggplot(aes(x = n, y = run_prop)) +
@@ -98,15 +99,15 @@ d %>%
   theme(panel.grid = element_blank())
 ```
 
-#### Deriving a long-run relative frequency.
+#### Deriving a Long-Run Relative Frequency
 
 > Sometimes, when the situation is simple enough mathematically, we can derive the exact long-run relative frequency. The case of the fair coin is one such simple situation. The sample space of the coin consists of two possible outcomes, head and tail. By the assumption of fairness, we know that each outcome is equally likely. Therefore, the long-run relative frequency of heads should be exactly one out of two, i.e., 1/2, and the long-run relative frequency of tails should also be exactly 1/2. (p. 76)
 
-### Inside the head: Subjective belief.
+### Inside the Head: Subjective Belief
 
 > To specify our subjective beliefs, we have to specify how likely we think each possible outcome is. It can be hard to pin down mushy intuitive beliefs. In the next section, we explore one way to "calibrate" subjective beliefs, and in the subsequent section we discuss ways to mathematically describe degrees of belief. (p. 76)
 
-### Probabilities assign numbers to possibilities.
+### Probabilities Assign Numbers to Possibilities
 
 > In general, a probability, whether it's outside the head or inside the head, is just a way of assigning numbers to a set of mutually exclusive possibilities. The numbers, called "probabilities," merely need to satisfy three properties [@kolmogorovFoundationsTheoryProbability1956]:
 >
@@ -114,17 +115,17 @@ d %>%
 > 2. The sum of the probabilities across all events in the entire sample space must be 1.0 (i.e., one of the events in the space must happen, otherwise the space does not exhaust all possibilities).
 > 3. For any two mutually exclusive events, the probability that one *or* the other occurs is the *sum* of their individual probabilities. For example, the probability that a fair six-sided die comes up 3-dots *or* 4-dots is 1/6 + 1/6 = 2/6.
 >
-> Any assignment of numbers to events that respects those three properties will also have all the properties of probabilities that we will discuss below. (pp. 77--78, *emphasis* in the original)
+> Any assignment of numbers to events that respects those three properties will also have all the properties of probabilities that we will discuss below (pp. 77--78; *emphasis* in the original).
 
-## Probability distributions
+## Probability Distributions
 
-"A probability *distribution* is simply a list of all possible outcomes and their corresponding probabilities" (p. 78, *emphasis* in the original)
+"A probability *distribution* is simply a list of all possible outcomes and their corresponding probabilities" (p. 78; *emphasis* in the original)
 
-### Discrete distributions: Probability mass.
+### Discrete Distributions: Probability Mass
 
 > When the sample space consists of discrete outcomes, then we can talk about the probability of each distinct outcome. For example, the sample space of a flipped coin has two discrete outcomes, and we talk about the probability of head or tail...
 >
-> For continuous outcome spaces, we can *discretize* the space into a finite set of mutually exclusive and exhaustive "bins." (p. 78, *emphasis* in the original)
+> For continuous outcome spaces, we can *discretize* the space into a finite set of mutually exclusive and exhaustive "bins" (p. 78; *emphasis* in the original).
 
 In order to recreate Figure 4.2, we need to generate the heights data. In his `HtWtDataDenerator.R` script, Kruschke provided the code for a function that will generate height data of the kind in his text. Here is the code.
 
@@ -197,7 +198,7 @@ HtWtDataGenerator <- function(n_subj, rndsd = NULL, male_prob = 0.50) {
 
 Now we have the `HtWtDataGenerator()` function, all we need to do is determine how many values are generated and how probable we want the values to be based on those from men. These are controlled by the `n_subj` and `male_prob` parameters.
 
-```{r, message = F, warning = F}
+```{r, message = FALSE, warning = FALSE}
 library(dplyr)
 set.seed(4)
 d <-
@@ -211,7 +212,7 @@ d %>%
 
 For Figure 4.2, we'll make extensive use of the `case_when()` syntax, which you can learn more about from [hrbrmstr](https://twitter.com/hrbrmstr)'s blog post, [*Making a case for case_when*](https://rud.is/b/2017/03/10/making-a-case-for-case_when/).
 
-```{r, fig.height = 2, fig.width = 7, message = F}
+```{r, fig.height = 2, fig.width = 7, message = FALSE}
 library(ggplot2)
 d_bin <-
   d %>%
@@ -272,7 +273,7 @@ d %>%
 
 Our data binning approach for Figure 4.2.c will be a little different than what we did, above. Here we'll make our bins with the `round()` function.
 
-```{r, fig.height = 2, fig.width = 7, message = F}
+```{r, fig.height = 2, fig.width = 7, message = FALSE}
 d_bin <-
   d %>%
   mutate(bin = round(height, digits = 0)) %>%   
@@ -309,20 +310,20 @@ d %>%
   theme(panel.grid = element_blank())
 ```
 
-> The probability of a discrete outcome, such as the probability of falling into an interval on a continuous scale, is referred to as a probability *mass.* Loosely speaking, the term "mass" refers the amount of stuff in an object. When the stuff is probability and the object is an interval of a scale, then the mass is the proportion of the outcomes in the interval. (p. 80, *emphasis* in the original)
+> The probability of a discrete outcome, such as the probability of falling into an interval on a continuous scale, is referred to as a probability *mass.* Loosely speaking, the term "mass" refers the amount of stuff in an object. When the stuff is probability and the object is an interval of a scale, then the mass is the proportion of the outcomes in the interval (p. 80; *emphasis* in the original).
 
-### Continuous distributions: Rendezvous with density.
+### Continuous Distributions: Rendezvous with Density
 
 > If you think carefully about a continuous outcome space, you realize that it becomes problematic to talk about the probability of a specific value on the continuum, as opposed to an interval on the continuum... Therefore, what we will do is make the intervals infinitesimally narrow, and instead of talking about the infinitesimal probability mass of each infinitesimal interval, we will talk about the ratio of the probability mass to the interval width. That ratio is called the probability *density*.
 >
-> Loosely speaking, density is the amount of stuff per unit of space it takes up. Because we are measuring amount of stuff by its mass, then density is the mass divided by the amount space it occupies. (p. 80, *emphasis* in the original)
+> Loosely speaking, density is the amount of stuff per unit of space it takes up. Because we are measuring amount of stuff by its mass, then density is the mass divided by the amount space it occupies (p. 80; *emphasis* in the original).
 
 To make Figure 4.3, we'll need new data.
 
-```{r, message = F, warning = F}
+```{r, message = FALSE, warning = FALSE}
 set.seed(4)
 d <-
-  tibble(height = rnorm(1e4, mean = 84, sd = 0.1)) %>%
+  tibble(height = rnorm(10000, mean = 84, sd = 0.1)) %>%
   mutate(door = 1:n())
 
 d %>%
@@ -331,7 +332,7 @@ d %>%
 
 To make the bins for our version of Figure 4.3.a, we could use the `case_when()` approach from above. However, that would require some tedious code. Happily, we have an alternative in the [**santoku** package](https://github.com/hughjonesd/santoku) [@R-santoku], which I learned about with help from the great [Mara Averick](https://twitter.com/dataandme), [Tyson Barrett](https://twitter.com/healthandstats), and [Omar Wasow](https://twitter.com/owasow). We can use the `santoku::chop()` function to discretize our `height` values. Here we'll walk through the first part.
 
-```{r, eval = F}
+```{r, eval = FALSE}
 library(santoku)
 
 d_bin <-
@@ -343,7 +344,7 @@ d_bin <-
 head(d_bin)
 ```
 
-```{r, warning = F, message = F, echo = F}
+```{r, warning = FALSE, message = FALSE, echo = FALSE}
 d_bin <-
   d %>% 
   mutate(bin = santoku::chop(height, 
@@ -355,7 +356,7 @@ head(d_bin)
 
 We've labeled our `bin` levels by their upper bounds. Note how they are saved as factors. To make use of those values in our plot, we'll need to convert them to numerals. Here we make that conversion and complete the data wrangling.
 
-```{r, message = F}
+```{r, message = FALSE}
 d_bin <-
   d_bin %>% 
   mutate(bin = as.character(bin) %>% as.double()) %>% 
@@ -398,11 +399,11 @@ d %>%
   theme(panel.grid = element_blank())
 ```
 
-#### Properties of probability density functions.
+#### Properties of Probability Density Functions
 
 > In general, for any continuous value that is split up into intervals, the sum of the probability masses of the intervals must be 1, because, by definition of making a measurement, some value of the measurement scale must occur. (p. 82)
 
-#### The normal probability density function.
+#### The Normal Probability Density Function
 
 "Perhaps the most famous probability density function is the normal distribution, also known as the Gaussian distribution" (p. 83). We'll use `dnorm()` again to make our version of Figure 4.4.
 
@@ -430,7 +431,7 @@ $$
 
 where $\mu$ governs the mean and $\sigma$ governs the standard deviation.
 
-### Mean and variance of a distribution.
+### Mean and Variance of a Distribution
 
 The mean of a probability distribution is also called the *expected value*, which follow the form
 
@@ -446,7 +447,7 @@ $$\text{var}_x = \int \text d x \; p(x) (x - E[x])^2.$$
 
 If you take the square root of the variance, you get the standard deviation.
 
-### Highest density interval (HDI).
+### Highest Density Interval (HDI)
 
 > The HDI indicates which points of a distribution are most credible, and which cover most of the distribution. Thus, the HDI summarizes the distribution by specifying an interval that spans most of the distribution, say 95% of it, such that every point inside the interval has higher credibility than any point outside the interval. (p. 87)
 
@@ -496,7 +497,7 @@ h
 
 Now we've saved those values in `h`, we can use then to make our version of Figure 4.5.a.
 
-```{r, fig.width = 4.5, fig.height = 2, warning = F}
+```{r, fig.width = 4.5, fig.height = 2, warning = FALSE}
 tibble(x = seq(from = -3.5, to = 3.5, by = 0.05)) %>% 
   mutate(d = dnorm(x, mean = 0, sd = 1)) %>% 
   
@@ -530,7 +531,7 @@ h
 
 Let's put those `h` values to work.
 
-```{r, fig.width = 4.5, fig.height = 2, warning = F}
+```{r, fig.width = 4.5, fig.height = 2, warning = FALSE}
 tibble(x = seq(from = 0, to = 1, by = 0.01)) %>% 
   mutate(d = dbeta(x, shape1 = 15, shape2 = 4)) %>% 
   
@@ -564,7 +565,7 @@ glimpse(d)
 
 As you'll see, it's not exactly right. But it's close enough to give you a sense of what's going on. But anyway, since we're working with simulated data rather than an analytic solution, we'll want to use a powerful convenience function from the **tidybayes** package.
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 library(tidybayes)
 ```
 
@@ -597,7 +598,7 @@ head(dens)
 
 We're finally ready to plot. Forgive me. It's a monster.
 
-```{r, fig.width = 4.5, fig.height = 2, warning = F, message = F}
+```{r, fig.width = 4.5, fig.height = 2, warning = FALSE, message = FALSE}
 ggplot(data = dens,
        aes(x = x, y = y)) +
   geom_area(fill = "grey75") +
@@ -629,11 +630,11 @@ ggplot(data = dens,
 
 > When the distribution refers to credibility of values, then the width of the HDI is another way of measuring uncertainty of beliefs. If the HDI is wide, then beliefs are uncertain. If the HDI is narrow, then beliefs are relatively certain. (p. 89)
 
-## Two-way distributions
+## Two-Way Distributions
 
 In the note below Table 4.1, Kruschke indicated the data came from @sneeGraphicalDisplayTwoway1974, [*Graphical display of two-way contingency tables*](https://www.researchgate.net/publication/243769696_Graphical_Display_of_Two-Way_Contingency_Tables). Kruschke has those data saved as the `HairEyeColor.csv` file.
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 d <- read_csv("~/Desktop/DBDA/data.R/HairEyeColor.csv")
 
 glimpse(d)
@@ -651,7 +652,7 @@ d <-
 
 Here we'll use the `tabyl()` and `adorn_totals()` functions from the [**janitor** package](https://CRAN.R-project.org/package=janitor) [@R-janitor] to help make the table of proportions by `Eye` and `Hair`.
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 library(janitor)
 
 d <-
@@ -666,7 +667,7 @@ d %>%
   mutate_if(is.double, round, digits = 2)
 ```
 
-### Conditional probability.
+### Conditional Probability
 
 > We often want to know the probability of one outcome, given that we know another outcome is true. For example, suppose I sample a person at random from the population referred to in Table 4.1. Suppose I tell you that this person has blue eyes. Conditional on that information, what is the probability that the person has blond hair (or any other particular hair color)? It is intuitively clear how to compute the answer: We see from the blue-eye row of Table 4.1 that the total (i.e., marginal) amount of blue-eyed people is 0.36, and that 0.16 of the population has blue eyes and blond hair. (p. 91)
 
@@ -686,18 +687,18 @@ d %>%
 
 The only reason our values differ from those in Table 4.2 is because Kruschke rounded.
 
-## Session info {-}
+## Session Info {-}
 
 ```{r}
 sessionInfo()
 ```
 
-```{r, eval = F, echo = F}
+```{r, eval = FALSE, echo = FALSE}
 # remove our objects
 rm(n, p_heads, d, end_prop, HtWtDataGenerator, d_bin, hdi_of_icdf, h, dens)
 ```
 
-```{r, echo = F, message = F, warning = F, results = "hide"}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 bayesplot::color_scheme_set("blue")
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)

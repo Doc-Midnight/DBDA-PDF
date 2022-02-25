@@ -13,23 +13,17 @@ knitr::opts_chunk$set(collapse = TRUE,
 ```
 
 
-
-```{r, echo = F}
-knitr::opts_chunk$set(fig.retina = 2.5)
-knitr::opts_chunk$set(fig.align = "center")
-```
-
 # Bayes' Rule
 
 "Bayes' rule is merely the mathematical relation between the prior allocation of credibility and the posterior reallocation of credibility conditional on data" [@kruschkeDoingBayesianData2015, pp. 99--100].
 
-## Bayes' rule
+## Bayes' Rule
 
 > Thomas Bayes (1702–1761) was a mathematician and Presbyterian minister in England. His famous theorem was published posthumously in 1763, thanks to the extensive editorial efforts of his friend, Richard Price [@bayesLIIEssaySolving1763]. The simple rule has vast ramifications for statistical inference, and therefore as long as his name is attached to the rule, we'll continue to see his name in textbooks. But Bayes himself probably was not fully aware of these ramifications, and many historians argue that it is Bayes' successor, Pierre-Simon Laplace (1749–1827), whose name should really label this type of analysis, because it was Laplace who independently rediscovered and extensively developed the methods [e.g., @daleHistoryInverseProbability2012; @mcgrayneTheoryThatWould2011]. (p. 100)
 
 I do recommend checking out McGrayne's book It's an easy and entertaining read. For a sneak preview, why not [listen to her](https://www.youtube.com/watch?v=8oD6eBkjF9o) discuss the main themes she covered in the book?
 
-### Derived from definitions of conditional probability.
+### Derived from Definitions of Conditional Probability
 
 With Equations 5.5 and 5.6, Kruschke gave us Bayes' rule in terms of $c$ and $r$. Equation 5.5 was
 
@@ -41,7 +35,7 @@ $$p(c \mid r) = \frac{p(r \mid c) \; p(c)}{\sum_{c^*}p(r \mid c^*) \; p(c^*)},$$
 
 where $c^*$ "in the denominator is a variable that takes on all possible values" of $c$ (p. 101).
 
-## Applied to parameters and data
+## Applied to Parameters and Data
 
 Here we get those equations re-expressed in the terms data analysts tend to think with, parameters (i.e., $\theta$) and data (i.e., $D$).
 
@@ -61,11 +55,11 @@ $$
 
 And don't forget, "evidence" is short for "marginal likelihood," which is the term we'll use in some of our code, below.
 
-## Complete examples: Estimating bias in a coin
+## Complete Examples: Estimating Bias in a Coin
 
 Here's a way to make Figure 5.1.a.
 
-```{r, message = F, warning = F, fig.width = 4, fig.height = 2}
+```{r, message = FALSE, warning = FALSE, fig.width = 4, fig.height = 2}
 library(tidyverse)
 
 tibble(theta = seq(from = 0, to = 1, by = 0.1),
@@ -126,7 +120,7 @@ tibble(x = theta_sequence) %>%
 
 In order to compute $p(D)$ (i.e., the *evidence* or the *marginal likelihood*), we'll need to multiply our respective prior and likelihood values for each point in our theta sequence and then sum all that up. That sum will be our *marginal likelihood*. With that cleared up, we can make Figure 5.1.c.
 
-```{r, message = F, warning = F, fig.width = 4, fig.height = 2}
+```{r, message = FALSE, warning = FALSE, fig.width = 4, fig.height = 2}
 library(dplyr)
 library(ggplot2)
 tibble(theta = theta_sequence,
@@ -147,7 +141,7 @@ tibble(theta = theta_sequence,
 
 > The posterior is a compromise between the prior distribution and the likelihood function. Sometimes this is loosely stated as a compromise between the prior and the data. The compromise favors the prior to the extent that the prior distribution is sharply peaked and the data are few. The compromise favors the likelihood function (i.e., the data) to the extent that the prior distribution is flat and the data are many. (p. 112)
 
-### Influence of sample size on the posterior.
+### Influence of Sample Size on the Posterior
 
 In order to follow along with this section, we're going to have to update our Bernoulli likelihood function so it can accommodate more than a single trial. In anticipation of [Chapter 6][Inferring a Binomial Probability via Exact Mathematical Analysis], we'll call our more general function the `bernoulli_likelihood()`.
 
@@ -219,7 +213,7 @@ tibble(theta = seq(from = 0, to = 1, by = 0.001),
 
 With just an $N = 40$, the likelihood already dominated the posterior. But this is also a function of our fairly gentle prior. "In general, the more data we have, the more precise is the estimate of the parameter(s) in the model. Larger sample sizes yield greater precision or certainty of estimation" (p. 113).
 
-### Influence of prior on the posterior.
+### Influence of Prior on the Posterior
 
 It's not immediately obvious how Kruschke made his prior distributions for Figure 5.3. However, hidden away in his `BernGridExample.R` file he indicated that to get the distribution for the left side of Figure 5.3, you simply raise the prior from the left of Figure 5.2 to the 0.1 power.
 
@@ -279,26 +273,26 @@ tibble(theta = seq(from = 0, to = 1, by = 0.001),
 
 > Bayesian inference is intuitively rational: With a strongly informed prior that uses a lot of previous data to put high credibility over a narrow range of parameter values, it takes a lot of novel contrary data to budge beliefs away from the prior. But with a weakly informed prior that spreads credibility over a wide range of parameter values, it takes relatively little data to shift the peak of the posterior distribution toward the data (although the posterior will be relatively wide and uncertain). (p. 114)
 
-## Why Bayesian inference can be difficult
+## Why Bayesian iIference can be Difficult
 
-> Determining the posterior distribution directly from Bayes' rule involves computing the evidence (a.k.a. marginal likelihood) in Equations 5.8 and 5.9. In the usual case of continuous parameters, the integral in Equation 5.9 can be impossible to solve analytically. Historically, the difficulty of the integration was addressed by restricting models to relatively simple likelihood functions with corresponding formulas for prior distributions, called *conjugate* priors, that "played nice" with the likelihood function to produce a tractable integral. (p. 115, *emphasis* in the original)
+> Determining the posterior distribution directly from Bayes' rule involves computing the evidence (a.k.a. marginal likelihood) in Equations 5.8 and 5.9. In the usual case of continuous parameters, the integral in Equation 5.9 can be impossible to solve analytically. Historically, the difficulty of the integration was addressed by restricting models to relatively simple likelihood functions with corresponding formulas for prior distributions, called *conjugate* priors, that "played nice" with the likelihood function to produce a tractable integral (p. 115; *emphasis* in the original).
 
 However, the simple model + conjugate prior approach has its limitations. As we'll see, we often want to fit complex models without shackling ourselves with conjugate priors—which can be quite a pain to work with. Happily,
 
-> another kind of approximation involves randomly sampling a large number of representative combinations of parameter values from the posterior distribution. In recent decades, many such algorithms have been developed, generally referred to as Markov chain Monte Carlo (MCMC) methods. What makes these methods so useful is that they can generate representative parameter-value combinations from the posterior distribution of complex models *without* computing the integral in Bayes' rule. It is the development of these MCMC methods that has allowed Bayesian statistical methods to gain practical use. (pp. 115--116, *emphasis* in the original)
+> another kind of approximation involves randomly sampling a large number of representative combinations of parameter values from the posterior distribution. In recent decades, many such algorithms have been developed, generally referred to as Markov chain Monte Carlo (MCMC) methods. What makes these methods so useful is that they can generate representative parameter-value combinations from the posterior distribution of complex models *without* computing the integral in Bayes' rule. It is the development of these MCMC methods that has allowed Bayesian statistical methods to gain practical use (pp. 115--116; *emphasis* in the original).
 
-## Session info {-}
+## Session Info {-}
 
 ```{r}
 sessionInfo()
 ```
 
-```{r, eval = F, echo = F}
+```{r, eval = FALSE, echo = FALSE}
 # remove our objects
 rm(bernoulli, theta_sequence, bernoulli_likelihood, small_data, large_data)
 ```
 
-```{r, echo = F, message = F, warning = F, results = "hide"}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```

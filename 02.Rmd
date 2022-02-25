@@ -14,11 +14,6 @@ knitr::opts_chunk$set(collapse = TRUE,
 
 
 
-```{r, echo = F}
-knitr::opts_chunk$set(fig.retina = 2.5)
-knitr::opts_chunk$set(fig.align = "center")
-```
-
 ```{r, echo = F, eval = F}
 # (PART) THE BASICS: MODELS, PROBABILITY, BAYES' RULE, AND R {-}
 
@@ -30,7 +25,7 @@ knitr::opts_chunk$set(fig.align = "center")
 
 > The goal of this chapter is to introduce the conceptual framework of Bayesian data analysis. Bayesian data analysis has two foundational ideas. The first idea is that Bayesian inference is reallocation of credibility across possibilities. The second foundational idea is that the possibilities, over which we allocate credibility, are parameter values in meaningful mathematical models. [@kruschkeDoingBayesianData2015, p. 15]
 
-## Bayesian inference is reallocation of credibility across possibilities
+## Bayesian Inference is Reallocation of Credibility across Possibilities
 
 The first step toward making Figure 2.1 is putting together a data object. And to help with that, we'll open up the **tidyverse**.
 
@@ -132,7 +127,7 @@ crossing(stage         = factor(c("Prior", "Posterior"),
         panel.grid = element_blank())
 ```
 
-### Data are noisy and inferences are probabilistic.
+### Data are Noisy and Inferences are Probabilistic
 
 Now on to Figure 2.3. I'm pretty sure the curves in the plot are Gaussian, which we'll make with the `dnorm()` function. After a little trial and error, their standard deviations look to be 1.2. However, it's tricky placing those curves in along with the probabilities, because the probabilities for the four discrete sizes (i.e., 1 through 4) are in a different metric than the Gaussian density curves. Since the probability metric for the four discrete sizes are the primary metric of the plot, we need to rescale the curves using a little algebra. We do that in the data code, below. After that, the code for the plot is relatively simple.
 
@@ -198,9 +193,9 @@ tibble(mu = 1:4,
 
 > In summary, the essence of Bayesian inference is reallocation of credibility across possibilities. The distribution of credibility initially reflects prior knowledge about the possibilities, which can be quite vague. Then new data are observed, and the credibility is re-allocated. Possibilities that are consistent with the data garner more credibility, while possibilities that are not consistent with the data lose credibility. Bayesian analysis is the mathematics of re-allocating credibility in a logically coherent and precise way. (p. 22)
 
-## Possibilities are parameter values in descriptive models
+## Possibilities are Parameter Values in Descriptive Models
 
-"A key step in Bayesian analysis is defining the set of possibilities over which credibility is allocated. *This is not a trivial step*, because there might always be possibilities beyond the ones we include in the initial set" (p. 22, *emphasis* added).
+"A key step in Bayesian analysis is defining the set of possibilities over which credibility is allocated. *This is not a trivial step*, because there might always be possibilities beyond the ones we include in the initial set" (p. 22; *emphasis* added).
 
 In the last section, we used the `dnorm()` function to make curves following the Normal distribution. Here we'll do that again, but also use the `rnorm()` function to simulate actual data from that same Normal distribution. Behold Figure 2.4.a.
 
@@ -243,7 +238,7 @@ ggplot(data = d, aes(x = x)) +
   theme(panel.grid = element_blank())
 ```
 
-## The steps of Bayesian data analysis
+## The Steps of Bayesian Data Analysis
 
 > In general, Bayesian analysis of data follows these steps:
 >
@@ -383,7 +378,8 @@ draws %>%
   geom_point(data = d,
              aes(x = height, y = weight),
              shape = 1) +
-  # the `eval(substitute(paste()))` trick came from: https://www.r-bloggers.com/value-of-an-r-object-in-an-expression/
+# the `eval(substitute(paste()))` trick came from: 
+# https://www.r-bloggers.com/value-of-an-r-object-in-an-expression/
   labs(subtitle = 
   eval(substitute(paste("Data with", n_lines, "credible regression lines"))),
        x = "Height in inches",
@@ -406,7 +402,8 @@ draws %>%
   scale_y_continuous(NULL, breaks = NULL) +
   coord_cartesian(xlim = c(0, 8)) +
   labs(title = "The posterior distribution",
-  subtitle = "The mode and 95% HPD intervals are\nthe dot and horizontal line at the bottom.",
+  subtitle = "The mode and 95% HPD intervals are 
+  the dot and horizontal line at the bottom.",
        x = expression(beta[1]~(slope))) +
   theme(panel.grid = element_blank())
 ```
@@ -426,7 +423,8 @@ predict(fit2.1, newdata = nd) %>%
   geom_point(data = d, 
              aes(y = weight),
              alpha = 2/3) +
-  labs(subtitle = "Data with the percentile-based 95% intervals and\nthe means of the posterior predictions",
+  labs(subtitle = "Data with the percentile-based 95% intervals and 
+       the means of the posterior predictions",
        x = "Height in inches",
        y = "Weight in inches") +
   theme(panel.grid = element_blank())
@@ -448,13 +446,14 @@ predict(fit2.1, newdata = nd) %>%
   geom_point(data =  d, 
              aes(y = weight),
              alpha = 2/3) +
-  labs(subtitle = "Data with the percentile-based 95% intervals and\nthe means of the posterior predictions",
+  labs(subtitle = "Data with the percentile-based 95% intervals and 
+       the means of the posterior predictions",
        x = "Height in inches",
        y = "Weight in inches") +
   theme(panel.grid = element_blank())
 ```
 
-## Session info {-}
+## Session Info {-}
 
 ```{r}
 sessionInfo()

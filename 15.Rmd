@@ -13,7 +13,7 @@ knitr::opts_chunk$set(collapse = TRUE,
 ```
 
 
-```{r, echo = F, eval = F}
+```{r, echo = FALSE, eval = FALSE}
 # (PART) THE GENERALIZED LINEAR MODEL {-}
 
 # We're finally ready for the workhorse of applied statistics, the generalized linear model (GLM)! "The GLM encompasses multiple linear regression, logistic regression, and Bayesian analogues to classical analysis of variance (ANOVA) and frequency-table analysis, among other cases" [@kruschkeDoingBayesianData2015, p. 417].
@@ -26,11 +26,11 @@ Along with Kruschke's text, in this part if the project we're moving away from s
 
 > versatile family of models known as the generalized linear model [GLM; @nelder1972generalized; @nelder1972generalized]. This family of models comprises the traditional "off the shelf" analyses such as $t$ tests, analysis of variance (ANOVA), multiple linear regression, logistic regression, log-linear models, etc. [@kruschkeDoingBayesianData2015, p. 420]
 
-## Types of variables
+## Types of Variables
 
-"To understand the GLM and its many specific cases, we must build up a variety of component concepts regarding relationships between variables and how variables are measured in the first place (p. 420)."
+"To understand the GLM and its many specific cases, we must build up a variety of component concepts regarding relationships between variables and how variables are measured in the first place" (p. 420).
 
-### Predictor and predicted variables.
+### Predictor and Predicted Variables
 
 It's worth repeating the second paragraph of this subsection in its entirety.
 
@@ -38,17 +38,17 @@ It's worth repeating the second paragraph of this subsection in its entirety.
 
 This is one of those fine points that can be easy to miss when you're struggling through the examples in this book or chest-deep in the murky waters of your own real-world data problem. But write this down on a sticky note and put it in your sock drawer or something. There are good reasons to fret about the distributional properties of your predictor variables--rules of thumb about the likelihood aren't among them.
 
-### Scale types: metric, ordinal, nominal, and count.
+### Scale types: Metric, Ordinal, Nominal, and Count
 
 I don't know that I'm interested in detailing the content of this section. But it's worth while considering what Kruschke wrote in its close.
 
 > **Why we care:** We care about the scale type because the likelihood function must specify a probability distribution on the appropriate scale. If the scale has two nominal values, then a Bernoulli likelihood function may be appropriate. If the scale is metric, then a normal distribution may be appropriate as a probability distribution to describe the data. Whenever we are choosing a model for data, we must answer the question, What kind of scale are we dealing with? (p. 423, **emphasis** in the original)
 
-## Linear combination of predictors
+## Linear Combination of Predictors
 
 "The core of the GLM is expressing the combined influence of predictors as their weighted sum. The following sections build this idea by scaffolding from the simplest intuitive cases" (p. 423).
 
-### Linear function of a single metric predictor.
+### Linear Function of a Single Metric Predictor
 
 "A linear function is the generic, 'vanilla,' off-the-shelf dependency that is used in statistical models" (p. 424). Its basic form is
 
@@ -66,7 +66,7 @@ ggplot2:::check_subclass("line", "Geom")$default_aes
 
 We can use the `ggplot2::update_geom_defaults()` function to change those default settings. Here's how we might go about increasing the default `size` and `color` parameters.
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 # library(tidyverse)
 library(ggplot2)
 library(ggthemes)
@@ -148,7 +148,7 @@ theme_set(
 
 You can learn more about these methods [here](https://ggplot2.tidyverse.org/reference/update_defaults.html) and [here](https://stackoverflow.com/questions/40307499/resetting-update-geom-defaults-in-ggplot2). Let's see what we've done by making the left panel of Figure 15.1.
 
-```{r, fig.width = 3, fig.height = 4, message = F, warning = F}
+```{r, fig.width = 3, fig.height = 4, message = FALSE, warning = FALSE}
 library(tibble)
 library(dplyr)
 tibble(x = -3:7) %>%
@@ -175,7 +175,7 @@ tibble(x = -3:7) %>%
 
 Did you notice how we followed the form of the basic linear function when we defined the values for `y_1` and `y_2`? It's that simple! Here's the right panel.
 
-```{r, fig.width = 3, fig.height = 4, message = F, warning = F}
+```{r, fig.width = 3, fig.height = 4, message = FALSE, warning = FALSE}
 tibble(x = -3:7) %>%
   mutate(y_1 = 10 + -0.5 * x,
          y_2 = 10 + 2 * x) %>% 
@@ -198,9 +198,9 @@ tibble(x = -3:7) %>%
                   ylim = c(-10, 25))
 ```
 
-> **Summary of why we care.** The likelihood function includes the form of the dependency of $y$ on $x$. When $y$ and $x$ are metric variables, the simplest form of dependency, both mathematically and intuitively, is one that preserves proportionality. The mathematical expression of this relation is a so-called linear function. The usual mathematical expression of a line is the $y$-intercept form, but sometimes a more intuitive expression is the $x$ threshold form. Linear functions form the core of the GLM. (pp. 424--425, **emphasis** in the original)
+> **Summary of why we care.** The likelihood function includes the form of the dependency of $y$ on $x$. When $y$ and $x$ are metric variables, the simplest form of dependency, both mathematically and intuitively, is one that preserves proportionality. The mathematical expression of this relation is a so-called linear function. The usual mathematical expression of a line is the $y$-intercept form, but sometimes a more intuitive expression is the $x$ threshold form. Linear functions form the core of the GLM (pp. 424--425; **emphasis** in the original).
 
-### Additive combination of metric predictors.
+### Additive Combination of Metric Predictors
 
 The linear combination of $K$ predictors has the general form
 
@@ -240,9 +240,9 @@ crossing(x1 = seq(from = 0, to = 10, by = 0.5),
   facet_wrap(~ key, labeller = label_parsed)
 ```
 
-Here we've captured some of Kruschke's grid aesthetic by keeping the `by` argument within `seq()` somewhat coarse and omitting the `interpolate = T` argument from `geom_raster()`. If you'd prefer smoother fill transitions for the y-values, set `by = .1` and `interpolate = T`.
+Here we've captured some of Kruschke's grid aesthetic by keeping the `by` argument within `seq()` somewhat coarse and omitting the `interpolate = TRUE` argument from `geom_raster()`. If you'd prefer smoother fill transitions for the y-values, set `by = 0.1` and `interpolate = TRUE`.
 
-### Nonadditive interaction of metric predictors.
+### Nonadditive Interaction of Metric Predictors
 
 As it turns out, "the combined influence of two predictors does not have to be additive" (p. 427). Let's explore what that can look like with our version of Figure 15.3.
 
@@ -276,24 +276,24 @@ Did you notice all those `*` operators in the `mutate()` code? We're no longer j
 
 > There is a subtlety in the use of the term "linear" that can sometimes cause confusion in this context. The interactions shown in Figure 15.3 are *not* linear on the *two* predictors $x_1$ and $x_2$. But if the product of the two predictors, $x_1 x_2$, is thought of as a third predictor, then the model *is* linear on the *three* predictors, because the predicted value of $y$ is a weighted additive combination of the three predictors. This reconceptualization can be useful for implementing nonlinear interactions in software for linear models, but we will not be making that semantic leap to a third predictor, and instead we will think of a nonadditive combination of two predictors.
 >
-> A nonadditive interaction of predictors does not have to be multiplicative. Other types of interaction are possible. (p. 428, *emphasis* in the original)
+> A nonadditive interaction of predictors does not have to be multiplicative. Other types of interaction are possible (p. 428; *emphasis* in the original).
 
-### Nominal predictors.
+### Nominal Predictors
 
-#### Linear model for a single nominal predictor.
+#### Linear Model for a Single Nominal Predictor
 
-> Instead of representing the value of the nominal predictor by a single scalar value $x$, we will represent the nominal predictor by a vector $\vec{x} = \langle x_{[1]},...,x_{[J]} \rangle$ where $J$ is the number of categories that the predictor has... 
+> Instead of representing the value of the nominal predictor by a single scalar value $x$, we will represent the nominal predictor by a vector $\vec{x} = \langle x_{[1]}, \ldots, x_{[J]} \rangle$ where $J$ is the number of categories that the predictor has$\ldots$  
 >
 > We will denote the baseline value of the prediction as $\beta_0$. The deflection for the $j$th level of the predictor is denoted $\beta_{[j]}$. Then the predicted value is
 >
 > \begin{align*}
-> y & = \beta_0 + \beta_{[1]} x_{[1]} + \dots + \beta_{[J]} x_{[J]} \\
->   & = \beta_0 + \vec{\beta} \cdot \vec{x}
+> y &= \beta_0 + \beta_{[1]} x_{[1]} + \cdots + \beta_{[J]} x_{[J]} \\
+>   &= \beta_0 + \vec{\beta} \cdot \vec{x}
 > \end{align*}
 >
-> where the notation $\vec{\beta} \cdot \vec{x}$ is sometimes called the 'dot product' of the vectors. (p. 429)
+> where the notation $\vec{\beta} \cdot \vec{x}$ is sometimes called the 'dot product' of the vectors (p. 429).
 
-#### Additive combination of nominal predictors.
+#### Additive Combination of Nominal Predictors
 
 When you have two additive nominal predictors, the model follows the form
 
@@ -332,7 +332,7 @@ tibble(x = 1:2,
                arrow = arrow(length = unit(0.2, "cm"))) +
   geom_text(data = text,
             aes(label = label), 
-            size = 3.5, parse = T) +
+            size = 3.5, parse = TRUE) +
   scale_x_continuous(breaks = 1:2, labels = c("<1,0>", "<0,1>")) +
   coord_cartesian(xlim = c(0, 3),
                   ylim = c(1.5, 1.75)) +
@@ -366,7 +366,7 @@ tibble(x = 1:5,
                arrow = arrow(length = unit(0.2, "cm"))) +
   geom_text(data = text,
             aes(label = label), 
-            size = 3.5, parse = T) +
+            size = 3.5, parse = TRUE) +
   scale_x_continuous(breaks = 1:5,
                      labels = c("<1,0,0,0,0>", "<0,1,0,0,0>", 
                                 "<0,0,1,0,0>", "<0,0,0,1,0>", 
@@ -376,7 +376,7 @@ tibble(x = 1:5,
   theme(axis.ticks.x = element_blank())
 ```
 
-Before we make our versions of the two panels in Figure 15.5, we should note that the values in the prose are at odds with the values implied in the figure. For simplicity, our versions of Figure 15.5 will match up with the values in the original figure, *not* the prose. For a look at what the figure might have looked like had it been based on the values in the prose, check out Kruschke's [Corrigenda](https://sites.google.com/site/doingbayesiandataanalysis/corrigenda).
+Before we make our versions of the two panels in Figure 15.5, we should note that the values in the prose are at odds with the values implied in the figure. For simplicity, our versions of Figure 15.5 will match up with the values in the original figure, *not* the prose. For a look at what the figure might have looked like had it been based on the values in the prose, check out Kruschke's [corrigenda](https://sites.google.com/site/doingbayesiandataanalysis/corrigenda).
 
 Here's the code for the left panel of Figure 15.5.
 
@@ -386,7 +386,7 @@ d <-
          x_2  = c(rep(0:2, each = 2), -0.25, 0.25),
          y    = c(8, 10, 3, 5, 4, 6, 8.5, 10.5),
          type = rep(c("number", "text"), times = c(6, 2))) %>% 
-  mutate(x_1 = factor(x_1, levels = c(" <1,0>", "<0,1> ")))
+  mutate(x_1 = factor(x_1, levels = c(" <1, 0>", "<0, 1> ")))
 
 d %>% 
   filter(type == "number") %>% 
@@ -398,7 +398,8 @@ d %>%
   scale_fill_viridis_d(NULL, option = "E", begin = 0.25, end = 0.75) +
   scale_color_viridis_d(NULL, option = "E", begin = 0.25, end = 0.75) +
   scale_x_continuous(breaks = 0:2, labels = c("<1,0,0>", "<0,1,0>", "<0,0,1>")) +
-  scale_y_continuous(breaks = seq(from = 0, to = 10, by = 2), expand = expansion(mult = c(0, 0.05))) +
+  scale_y_continuous(breaks = seq(from = 0, to = 10, by = 2), 
+                     expand = expansion(mult = c(0, 0.05))) +
   ggtitle("Additive (no interaction)") +
   theme(axis.ticks.x = element_blank(),
         legend.position = "none")
@@ -406,11 +407,11 @@ d %>%
 
 Did you notice our `filter()` trick in the code?
 
-#### Nonadditive interaction of nominal predictors.
+#### Nonadditive Interaction of Nominal Predictors
 
-> We need new notation to formalize the nonadditive influence of a combination of nominal values. Just as $\vec x_1$ refers to the value of predictor 1, and $\vec x_2$ refers to the value of predictor 2, the notation $\vec x_{1 \times 2}$ will refer to a particular *combination* of values of predictors 1 and 2. If there are $J$ levels of predictor 1 and $K$ levels of predictor 2, then there are $J \times K$ combinations of the two predictors. To indicate a particular combination of levels from predictors 1 and 2, the corresponding component of $\vec x_{1 \times 2}$ is set to 1 while all other components are set to 0. A nonadditive interaction of predictors is formally represented by including a term for the influence of combinations of predictors, beyond the additive influences, as follows: $y = \beta_0 + \vec \beta_1 \cdot \vec x_1 + \vec \beta_2 \cdot \vec x_2 + \vec \beta_{1 \times 2} \cdot \vec x_{1 \times 2}$. (pp. 432--433, *emphasis* in the original)
+> We need new notation to formalize the nonadditive influence of a combination of nominal values. Just as $\vec x_1$ refers to the value of predictor 1, and $\vec x_2$ refers to the value of predictor 2, the notation $\vec x_{1 \times 2}$ will refer to a particular *combination* of values of predictors 1 and 2. If there are $J$ levels of predictor 1 and $K$ levels of predictor 2, then there are $J \times K$ combinations of the two predictors. To indicate a particular combination of levels from predictors 1 and 2, the corresponding component of $\vec x_{1 \times 2}$ is set to 1 while all other components are set to 0. A nonadditive interaction of predictors is formally represented by including a term for the influence of combinations of predictors, beyond the additive influences, as follows: $y = \beta_0 + \vec \beta_1 \cdot \vec x_1 + \vec \beta_2 \cdot \vec x_2 + \vec \beta_{1 \times 2} \cdot \vec x_{1 \times 2}$ (pp. 432--433; *emphasis* in the original).
 
-Now we're in nonadditive interaction land, here's the code for the right panel of Figure 15.5.
+Now we're in non-additive interaction land, here's the code for the right panel of Figure 15.5.
 
 ```{r, fig.width = 4, fig.height = 3}
 d <-
@@ -429,24 +430,25 @@ d %>%
             aes(label = x_1, color = x_1)) +
   scale_fill_viridis_d(NULL, option = "E", begin = 0.25, end = 0.75) +
   scale_color_viridis_d(NULL, option = "E", begin = 0.25, end = 0.75) +
-  scale_x_continuous(breaks = 0:2, labels = c("<1,0,0>", "<0,1,0>", "<0,0,1>")) +
+  scale_x_continuous(breaks = 0:2, 
+    labels = c("<1, 0, 0>", "<0, 1, 0>", "<0, 0, 1>")) +
   scale_y_continuous(breaks = 0:5 * 2, expand = expansion(mult = c(0, 0.05))) +
   ggtitle("Non-Additive Interaction") +
   theme(axis.ticks.x = element_blank(),
         legend.position = "none")
 ```
 
-"The main point to understand now is that *the term 'interaction' refers to a nonadditive influence of the predictors on the predicted, regardless of whether the predictors are measured on a nominal scale or a metric scale*" (p. 434, *emphasis* in the original).
+"The main point to understand now is that *the term 'interaction' refers to a nonadditive influence of the predictors on the predicted, regardless of whether the predictors are measured on a nominal scale or a metric scale*" (p. 434; *emphasis* in the original).
 
-## Linking from combined predictors to noisy predicted data
+## Linking from Combined Predictors to Noisy Predicted Data
 
-### From predictors to predicted central tendency.
+### From Predictors to Predicted Central Tendency
 
 > After the predictor variables are combined, they need to be mapped to the predicted variable. This mathematical mapping is called the *(inverse) link* function, and is denoted by $f()$ in the following equation:
 >
 > $$y = f(\operatorname{lin}(x))$$
 > 
-> Until now, we have been assuming that the link function is merely the identity function, $f(\operatorname{lin}(x)) = \operatorname{lin}(x)$. (p. 436, *emphasis* in the original)
+> Until now, we have been assuming that the link function is merely the identity function, $f(\operatorname{lin}(x)) = \operatorname{lin}(x)$ (p. 436; *emphasis* in the original).
 
 Yet as we'll see, many models use links other than the identity function.
 
@@ -454,17 +456,17 @@ Yet as we'll see, many models use links other than the identity function.
 
 The logistic link function follows the form
 
-$$y = \operatorname{logistic}(x) = \frac{1}{ \left(1 + \exp (-x) \right)}.$$
+$$y = \operatorname{logistic}(x) = \frac{1}{ 1 + \exp (-x) }.$$
 
-We can write the logistic function for a univariable metric predictor as
+We can write the logistic function for a uni-variable metric predictor as
 
 $$y = \operatorname{logistic}(x; \beta_0, \beta_1) = \frac{1}{1 + \exp \left(-\left[ \beta_0 + \beta_1 \right] \right)}.$$
 
 And if we prefer to parameterize it in terms of gain $\gamma$ and threshold $\theta$, it'd be
 
-$$y = \operatorname{logistic}(x; \gamma, \theta) = \frac{1}{ 1 + \exp \left( -\gamma \left[x - \theta \right] \right)}.$$
+$$y = \operatorname{logistic}(x; \gamma, \theta) = \frac{1}{ 1 + \exp \left[ -\gamma \left( x - \theta \right) \right]}.$$
 
-We can make the sexy logistic curves of Figure 15.6 with `stat_function()`, into which we'll plug our very own custom `make_logistic()` function. Here's the left panel.
+We can make the sexy logistic curves of Figure 15.6 with `stat_function()`, into which we'll plug our very own custom `make_logistic()` function. Here's the left panel:
 
 ```{r, fig.width = 3.25, fig.height = 3.5}
 library(stringr)
@@ -491,7 +493,7 @@ tibble(x = c(-11, 11)) %>%
                 size = 1, color = viridis_pal(option = "E")(9)[2]) +
   geom_text(data = text,
             aes(y = y, label = label),
-            size = 3.5, parse = T) +
+            size = 3.5, parse = TRUE) +
   scale_y_continuous(expand = expansion(mult = 0), limits = c(0, 1)) +
   coord_cartesian(xlim = c(-10, 10)) +
   ggtitle("Different Thresholds") 
@@ -519,7 +521,7 @@ crossing(gamma = c(2, 0.2),
             size = 1, color = viridis_pal(option = "E")(9)[2]) +
   geom_text(data = text,
             aes(label = label),
-            size = 3.5, parse = T) +
+            size = 3.5, parse = TRUE) +
   scale_y_continuous(expand = expansion(mult = 0), limits = c(0, 1)) +
   coord_cartesian(xlim = c(-10, 10)) +
   ggtitle("Different Gains")
@@ -564,11 +566,11 @@ crossing(x1 = seq(from = -6, to = 6, by = 0.5),
   facet_wrap(~ name, labeller = label_parsed)
 ```
 
-"The threshold determines the *position* of the logistical cliff. In other words, the threshold determines the x values for which $y = 0.5$... The gain determines the *steepness* of the logistical cliff" (pp. 437--439, *emphasis* in the original).
+"The threshold determines the *position* of the logistical cliff. In other words, the threshold determines the x values for which $y = 0.5 \ldots$ The gain determines the *steepness* of the logistical cliff" (pp. 437--439; *emphasis* in the original).
 
-#### The cumulative normal function.
+#### The Cumulative Normal Function
 
-> The cumulative normal is denoted $\Phi (x; \mu, \sigma)$, where x is a real number and where $\mu$ and $\sigma$ are parameter values, called the mean and standard deviation of the normal distribution. The parameter $\mu$ governs the point at which the cumulative normal, $\Phi(x)$, equals 0.5. In other words, $\mu$ plays the same role as the threshold in the logistic. The parameter $\sigma$ governs the steepness of the cumulative normal function at $x = \mu$, but inversely, such that a *smaller* value of $\sigma$ corresponds to a steeper cumulative normal. (p. 440, *emphasis* in the original)
+> The cumulative normal is denoted $\Phi (x; \mu, \sigma)$, where x is a real number and where $\mu$ and $\sigma$ are parameter values, called the mean and standard deviation of the normal distribution. The parameter $\mu$ governs the point at which the cumulative normal, $\Phi(x)$, equals 0.5. In other words, $\mu$ plays the same role as the threshold in the logistic. The parameter $\sigma$ governs the steepness of the cumulative normal function at $x = \mu$, but inversely, such that a *smaller* value of $\sigma$ corresponds to a steeper cumulative normal (p. 440; *emphasis* in the original).
 
 Here we plot the standard normal density in the top panel of Figure 15.8.
 
@@ -586,7 +588,7 @@ tibble(x = seq(from = -4, to = 4, by = 0.05)) %>%
   ggtitle("Normal Density") 
 ```
 
-Here's the analogous cumulative normal function depicted in the bottom panel of Figure 15.8.
+Here's the analogous cumulative normal function depicted in the bottom panel of Figure 15.8:
 
 ```{r, fig.width = 3.25, fig.height = 3}
 tibble(x = seq(from = -4, to = 4, by = 0.05)) %>%
@@ -604,11 +606,11 @@ tibble(x = seq(from = -4, to = 4, by = 0.05)) %>%
   ggtitle("Cumulative Normal")
 ```
 
-> Terminology: The inverse of the cumulative normal is called the *probit* function. ["Probit" stands for "probability unit"; @bliss1934method]. The probit function maps a value $p$, for $0.0 \leq p \leq 1.0$, onto the infinite real line, and a graph of the probit function looks very much like the logit function. (p. 439, *emphasis* in the original)
+> Terminology: The inverse of the cumulative normal is called the *probit* function. ["Probit" stands for "probability unit"; @bliss1934method]. The probit function maps a value $p$, for $0.0 \leq p \leq 1.0$, onto the infinite real line, and a graph of the probit function looks very much like the logit function (p. 439; *emphasis* in the original).
 
-### From predicted central tendency to noisy data.
+### From Predicted Central Tendency to Noisy Data
 
-> In the real world, there is always variation in $y$ that we cannot predict from $x$. This unpredictable "noise" in $y$ might be deterministically caused by sundry factors we have neither measured nor controlled, or the noise might be caused by inherent non-determinism in $y$. It does not matter either way because in practice the best we can do is predict the *probability* that $y$ will have any particular value, dependent upon $x$...
+> In the real world, there is always variation in $y$ that we cannot predict from $x$. This unpredictable "noise" in $y$ might be deterministically caused by sundry factors we have neither measured nor controlled, or the noise might be caused by inherent non-determinism in $y$. It does not matter either way because in practice the best we can do is predict the *probability* that $y$ will have any particular value, dependent upon $x \ldots$
 >
 > To make this notion of probabilistic tendency precise, we need to specify a probability distribution for $y$ that depends on $f (\operatorname{lin} (x))$. To keep the notation tractable, first define $\mu = f (\operatorname{lin} (x))$. The value $\mu$ represents the central tendency of the predicted $y$ values, which might or might not be the mean. With this notation, we then denote the probability distribution of $y$ as some to-be-specified probability density function, abbreviated as "pdf":
 >
@@ -616,7 +618,7 @@ tibble(x = seq(from = -4, to = 4, by = 0.05)) %>%
 >
 > As indicated by the bracketed terms after $\mu$, the pdf might have various additional parameters that control the distribution’s scale (i.e., standard deviation), shape, etc. 
 >
-> The form of the pdf depends on the measurement scale of the predicted variable. (pp. 440--441, *emphasis* in the original)
+> The form of the pdf depends on the measurement scale of the predicted variable (pp. 440--441; *emphasis* in the original).
 
 The top panel of Figure 15.9 is tricky. One way to make those multiple densities tipped on their sides is with `ggridges::geom_ridgeline()` followed by `coord_flip()`. However, explore a different approach that'll come in handy in many of the plots we'll be making in later chapters. The method requires we make a data set with the necessary coordinates for the side-tipped densities. Let's walk through that step slowly.
 
@@ -652,7 +654,7 @@ str(curves)
 
 In case it's not clear, we'll be plotting with the `x` and `y` columns. Think of the other columns as showing our work. But now we've got those `curves` data, we're ready to simulate the points and plot.
 
-```{r, fig.width = 4, fig.height = 3.75, message = F, warning = F}
+```{r, fig.width = 4, fig.height = 3.75, message = FALSE, warning = FALSE}
 # how many points would you like?
 n_samples <- 750
 
@@ -677,7 +679,7 @@ tibble(x = runif(n = n_samples, -10, 10)) %>%
 
 We'll revisit this method in Chapter 17. The wireframe plots at the bottom of Figure 15.9 and in Figure 15.10 are outside of our **ggplot2** purview.
 
-## Formal expression of the GLM
+## Formal Expression of the GLM
 
 We can write the GLM as
 
@@ -686,21 +688,21 @@ y   & \sim \operatorname{pdf} \left(\mu, [\text{parameters}] \right), \text{wher
 \mu & = f \left(\operatorname{lin}(x), [\text{parameters}] \right).
 \end{align*}
 
-> As has been previously explained, the predictors $x$ are combined in the linear function $\operatorname{lin}(x)$, and the function $f$ in [the first equation] is called the inverse link function. The data, $y$, are distributed around the central tendency $\mu$ according to the probability density function labeled "pdf." (p. 444)
+> As has been previously explained, the predictors $x$ are combined in the linear function $\operatorname{lin}(x)$, and the function $f$ in [the first equation] is called the inverse link function. The data, $y$, are distributed around the central tendency $\mu$ according to the probability density function labeled "pdf" (p. 444).
 
 ### Cases of the GLM.
 
-> When a client brings an application to a [statistical] consultant, one of the first things the consultant does is find out from the client which data are supposed to be predictors and which data are supposed to be predicted, and the measurement scales of the data... When you are considering how to analyze data, your first task is to be your own consultant and find out which data are predictors, which are predicted, and what measurement scales they are. (pp. 445--446)
+> When a client brings an application to a [statistical] consultant, one of the first things the consultant does is find out from the client which data are supposed to be predictors and which data are supposed to be predicted, and the measurement scales of the data... When you are considering how to analyze data, your first task is to be your own consultant and find out which data are predictors, which are predicted, and what measurement scales they are (pp. 445--446).
 
 Soak this last bit in. It's gold. I've found it to be true in my exchanges with other researchers and with my own data problems, too.
 
-## Session info {-}
+## Session Info {-}
 
 ```{r}
 sessionInfo()
 ```
 
-```{r, echo = F}
+```{r, echo = FALSE}
 update_geom_defaults(
   geom = "line", 
   new = default_line
@@ -722,12 +724,12 @@ update_geom_defaults(
 )
 ```
 
-```{r, echo = F}
+```{r, echo = FALSE}
 # remove the objects
 rm(default_line, default_hline, default_vline, default_segment, arrows, text, d, make_logistic, logistic, curves, n_samples)
 ```
 
-```{r, echo = F, message = F, warning = F, results = "hide"}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```

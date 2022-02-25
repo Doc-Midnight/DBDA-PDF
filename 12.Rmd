@@ -17,17 +17,17 @@ knitr::opts_chunk$set(collapse = TRUE,
 
 > Suppose that you have collected some data, and now you want to answer the question, Is there a non-zero effect or not? Is the coin fair or not? Is there better-than-chance accuracy or not? Is there a difference between groups or not? In the previous chapter, [Kruschke] argued that answering this type of question via null hypothesis significance testing (NHST) has deep problems. This chapter describes Bayesian approaches to the question. [@kruschkeDoingBayesianData2015, p 335]
 
-## The estimation approach
+## The Estimation Approach
 
 > Throughout this book, we have used Bayesian inference to derive a posterior distribution over a parameter of interest, such as the bias $\theta$ of a coin. We can then use the posterior distribution to discern the credible values of the parameter. If the null value is far from the credible values, then we reject the null value as not credible. But if all the credible values are virtually equivalent to the null value, then we can accept the null value. (p. 336)
 
-### Region of practical equivalence.
+### Region of Practical Equivalence
 
-Kruschke began: "A *region of practical equivalence* (ROPE) indicates a small range of parameter values that are considered to be practically equivalent to the null value for purposes of the particular application" (p. 336, *emphasis* in the original)
+Kruschke began: "A *region of practical equivalence* (ROPE) indicates a small range of parameter values that are considered to be practically equivalent to the null value for purposes of the particular application" (p. 336; *emphasis* in the original).
 
 Before we get to plotting, let's talk about themes and color. For the plots in this chapter, we'll take our color palette from the [**fishualize** package](https://CRAN.R-project.org/package=fishualize) [@R-fishualize], which provides a range of color palettes based on fish species. Our palette will be `"Ostorhinchus_angustatus"`, which is based on [Ostorhinchus angustatus](https://www.fishbase.se/summary/Ostorhinchus-angustatus.html).
 
-```{r, warning = F, message = F, fig.height = 3.5}
+```{r, warning = FALSE, message = FALSE, fig.height = 3.5}
 library(fishualize)
 
 scales::show_col(fish(n = 5, option = "Ostorhinchus_angustatus"))
@@ -35,7 +35,7 @@ scales::show_col(fish(n = 5, option = "Ostorhinchus_angustatus"))
 
 We'll base our overall global plot theme on `cowplot::theme_cowplot()`, and use `theme()` to make a few color changes based on `"Ostorhinchus_angustatus"`.
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 library(tidyverse)
 library(cowplot)
 
@@ -53,7 +53,7 @@ oa
 
 You can undo the above with `ggplot2::theme_set(ggplot2::theme_grey())`. Here's a plot of Kruschke's initial coin flip ROPE.
 
-```{r, fig.width = 6, fig.height = 1.5, warning = F, message = F}
+```{r, fig.width = 6, fig.height = 1.5, warning = FALSE, message = FALSE}
 tibble(xmin = 0.45,
        xmax = 0.55) %>% 
 ggplot() +
@@ -107,9 +107,9 @@ d <-
 glimpse(d)
 ```
 
-Now we can plot the results.
+Now we can plot the results:
 
-```{r, fig.width = 6, fig.height = 2, warning = F, message = F}
+```{r, fig.width = 6, fig.height = 2, warning = FALSE, message = FALSE}
 ggplot(data = d) +
   geom_rect(xmin = 0.45,  xmax = 0.55,
             ymin = -Inf, ymax = Inf,
@@ -126,7 +126,7 @@ ggplot(data = d) +
        x = expression(theta)) 
 ```
 
-With the formula by $\operatorname{beta} (\theta | z + \alpha, N - z + \beta)$, we can analytically compute the Beta parameters for the posterior.
+With the formula by $\operatorname{beta} \left( \theta \mid z + \alpha, \; N - z + \beta \right)$, we can analytically compute the Beta parameters for the posterior.
 
 ```{r}
 (alpha <- z + 1)
@@ -166,7 +166,7 @@ Compute those HDIs and save them as `h`.
 
 Now let's remake the plot from above, this time with the analytically-derived HDI values.
 
-```{r, fig.width = 6, fig.height = 2, warning = F, message = F}
+```{r, fig.width = 6, fig.height = 2, warning = FALSE, message = FALSE}
 tibble(theta = seq(from = 0, to = 1, length.out = 1000)) %>% 
   
   ggplot() +
@@ -188,9 +188,9 @@ tibble(theta = seq(from = 0, to = 1, length.out = 1000)) %>%
        x = expression(theta))
 ```
 
-In his second example (p. 337), Kruschke considered $z = 490$ heads out of $N = 1000$ flips.
+In his second example (p. 337), Kruschke considered $z = 490$ heads out of $N = 1, \!000$ flips.
 
-```{r, fig.width = 6, fig.height = 2, warning = F, message = F}
+```{r, fig.width = 6, fig.height = 2, warning = FALSE, message = FALSE}
 # we need these to compute the likelihood
 n <- 1000
 z <- 490
@@ -230,19 +230,19 @@ hdi_of_icdf(name = qbeta,
 
 Further down the section, Kruschke offered some perspective on the ROPE approach.
 
-> The ROPE limits, by definition, cannot be uniquely "correct," but instead are established by practical aims, bearing in mind that wider ROPEs yield more decisions to accept the ROPEd value and fewer decision to reject the ROPEd value. In many situations, the exact limit of the ROPE can be left indeterminate or tacit, so that the audience of the analysis can use whatever ROPE is appropriate at the time, as competing theories and measuring devices evolve. When the HDI is far from the ROPEd value, the exact ROPE is inconsequential because the ROPEd value would be rejected for any reasonable ROPE. When the HDI is very narrow and overlaps the target value, the HDI might again fall within any reasonable ROPE, again rendering the exact ROPE inconsequential. When, however, the HDI is only moderately narrow and near the target value, the analysis can report how much of the posterior falls within a ROPE as a function of different ROPE widths...
+> The ROPE limits, by definition, cannot be uniquely "correct," but instead are established by practical aims, bearing in mind that wider ROPEs yield more decisions to accept the ROPEd value and fewer decision to reject the ROPEd value. In many situations, the exact limit of the ROPE can be left indeterminate or tacit, so that the audience of the analysis can use whatever ROPE is appropriate at the time, as competing theories and measuring devices evolve. When the HDI is far from the ROPEd value, the exact ROPE is inconsequential because the ROPEd value would be rejected for any reasonable ROPE. When the HDI is very narrow and overlaps the target value, the HDI might again fall within any reasonable ROPE, again rendering the exact ROPE inconsequential. When, however, the HDI is only moderately narrow and near the target value, the analysis can report how much of the posterior falls within a ROPE as a function of different ROPE widths$\ldots$
 >
-> It is important to be clear that any discrete decision about rejecting or accepting a null value does *not* exhaustively capture our knowledge about the parameter value. Our knowledge about the parameter value is described by the full posterior distribution. When making a binary decision, we have merely compressed all that rich detail into a single bit of information. The broader goal of Bayesian analysis is conveying an informative summary of the posterior, and where the value of interest falls within that posterior. Reporting the limits of an HDI region is more informative than reporting the declaration of a reject/accept decision. By reporting the HDI and other summary information about the posterior, different readers can apply different ROPEs to decide for themselves whether a parameter is practically equivalent to a null value. The decision procedure is separate from the Bayesian inference. The Bayesian part of the analysis is deriving the posterior distribution. The decision procedure uses the posterior distribution, but does not itself use Bayes’ rule. (pp. 338--339, *emphasis* in the original)
+> It is important to be clear that any discrete decision about rejecting or accepting a null value does *not* exhaustively capture our knowledge about the parameter value. Our knowledge about the parameter value is described by the full posterior distribution. When making a binary decision, we have merely compressed all that rich detail into a single bit of information. The broader goal of Bayesian analysis is conveying an informative summary of the posterior, and where the value of interest falls within that posterior. Reporting the limits of an HDI region is more informative than reporting the declaration of a reject/accept decision. By reporting the HDI and other summary information about the posterior, different readers can apply different ROPEs to decide for themselves whether a parameter is practically equivalent to a null value. The decision procedure is separate from the Bayesian inference. The Bayesian part of the analysis is deriving the posterior distribution. The decision procedure uses the posterior distribution, but does not itself use Bayes’ rule (pp. 338--339; *emphasis* in the original).
 
 Full disclosure: I'm not a fan of the ROPE method. Though we're following along with the text and covering it, here, I will deemphasize it in later sections.
 
-Kruschke then went on to compare the ROPE with frequentist equivalence tests. This is a part of the literature I have not waded into, yet. It appears psychologist Daniël Lakens and colleagues gave written a bit in the topic, recently. Interested readers might start with @lakensImprovingInferencesNull2020, @lakensEquivalenceTestingPsychological2018, or @lakensEquivalenceTestingSecond2018.
+Kruschke then went on to compare the ROPE with frequentist equivalence tests. This is a part of the literature I have not waded into, yet. It appears psychologist Daniël Lakens and colleagues gave written a bit in the topic, recently. Interested readers might start with @lakensImprovingInferencesNull2020; @lakensEquivalenceTestingPsychological2018; or @lakensEquivalenceTestingSecond2018.
 
-### Some examples.
+### Some Examples
 
-Kruschke referenced an analysis from way back in [Chapter 9][Hierarchical Models]. We'll need to re-fit the model. First we import data.
+Kruschke referenced an analysis from way back in [Chapter 9][Hierarchical Models]. We'll need to re-fit the model. First we import data:
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 my_data <- read_csv("~/Desktop/DBDA/data.R/BattingAverage.csv")
 
 glimpse(my_data)
@@ -250,7 +250,7 @@ glimpse(my_data)
 
 Let's load **brms** and, while we're at it, **tidybayes**.
 
-```{r, warning = F, message = F}
+```{r, warning = FALSE, message = FALSE}
 library(brms)
 library(tidybayes)
 ```
@@ -272,7 +272,7 @@ fit9.2 <-
 
 Let's use `coef()` to pull the relevant posterior draws.
 
-```{r, warning = F}
+```{r, warning = FALSE}
 c <-
   coef(fit9.2, summary = F)$PriPos %>% 
   as_tibble()
@@ -318,7 +318,7 @@ c_small %>%
 
 In order to re-plot part of Figure 9.15, we'll need to employ `fitted()` to snatch the player-specific posteriors.
 
-```{r, warning = F}
+```{r, warning = FALSE}
 # this will make life easier. just go with it
 name_list <- c("ShinSoo Choo", "Ichiro Suzuki")
 
@@ -362,13 +362,13 @@ f %>%
   coord_cartesian(xlim = c(-0.125, 0.125))
 ```
 
-### Differences of correlated parameters.
+### Differences of Correlated Parameters
 
 Kruschke didn't explicate where he got the data for Figure 12.1. If we're willing to presume a multivariate normal distribution, we can get close using the `MASS::mvrnorm()` function. You can get the basic steps from [Sven Hohenstein's answer to this stats.stacheschange question](https://stats.stackexchange.com/questions/164471/generating-a-simulated-dataset-from-a-correlation-matrix-with-means-and-standard).
 
 ```{r}
 # first we'll make a correlation matrix
-# a correlation of .9 seems about right
+# a correlation of 0.9 seems about right
 correlation_matrix <- 
   matrix(c(1, 0.9, 
            0.9, 1), 
@@ -378,7 +378,8 @@ correlation_matrix <-
 mu <- c(0.58, 0.42)
 sd <- c(0.1, 0.1)
 
-# now we'll use the correlation matrix and standard deviations to make a covariance matrix
+# now we'll use the correlation matrix and standard deviations to make a 
+# covariance matrix
 covariance_matrix <- 
   sd %*% t(sd) * correlation_matrix
 
@@ -425,7 +426,7 @@ d %>%
 To make the plots in the right panel of Figure 12.1, we just need to convert the correlation from $0.9$ to $-0.9$.
 
 ```{r}
-# this time we'll make the correlations -.9
+# this time we'll make the correlations -0.9
 correlation_matrix <- 
   matrix(c(1, -0.9, 
            -0.9, 1), 
@@ -472,11 +473,11 @@ d %>%
   coord_equal()
 ```
 
-> In summary, the marginal distributions of two parameters do not indicate the relationship between the parameter values. The joint distribution of the two parameters might have positive or negative correlation (or even a non-linear dependency), and therefore the difference of the parameter values should be explicitly examined. (pp. 341--342)
+> In summary, the marginal distributions of two parameters do not indicate the relationship between the parameter values. The joint distribution of the two parameters might have positive or negative correlation (or even a non-linear dependency), and therefore the difference of the parameter values should be explicitly examined (pp. 341--342).
 
-### Why HDI and not equal-tailed interval?
+### Why HDI and Not an Equal-Tailed Interval?
 
-Though Kruschke told us Figure 12.2 was of a gamma distribution, he didn't tell us the parameters for that particular gamma. After playing around for a bit, it appeared `dgamma(x, 2, .2)` worked pretty well.
+Though Kruschke told us Figure 12.2 was of a gamma distribution, he didn't tell us the parameters for that particular gamma. After playing around for a bit, it appeared `dgamma(x, 2, 0.2)` worked pretty well.
 
 ```{r, fig.width = 4, fig.height = 2}
 tibble(x = seq(from = 0, to = 40, by = 0.1)) %>% 
@@ -536,7 +537,7 @@ Now we've computed all those values, we can collect them into a tibble with the 
 )
 ```
 
-Technically, those second and third `y`-values should be zero. I've set them a touch higher so they don't get obscured by the $x$-axis in the plot. Anyway, we're finally ready to plot a more complete version of Figure 12.2.
+Technically, those second and third `y`-values should be zero. I've set them a touch higher so they don't get obscured by the $x$-axis in the plot. In any case, we're finally ready to plot a more complete version of Figure 12.2.
                      
 ```{r, fig.width = 6, fig.height = 3}
 # for the annotation
@@ -592,13 +593,13 @@ fitted(fit9.2,
 
 As you may have gathered, Kruschke clearly prefers using HDIs over ETIs. His preference isn't without controversy. If you'd like to explore the topic further in the form of saucy twitter banter, the inimitable [Dan Simpson](https://twitter.com/dan_p_simpson) has just [the thread](https://twitter.com/dan_p_simpson/status/1134095728190676992) for you. Here's [the link](https://discourse.mc-stan.org/t/quantiles-vs-hpdi-from-rstan-summary/9025) to the corresponding thread in the Stan discourse forum.
 
-## The model-comparison approach
+## The Model-Comparison Approach
 
 > Recall that the motivating issue for this chapter is the question, Is the null value of a parameter credible? The previous section answered the question in terms of parameter estimation. In that approach, we started with a possibly informed prior distribution and examined the posterior distribution.
 >
-> In this section we take a different approach. Some researchers prefer instead to pose the question in terms of model comparison. In this framing of the question, the focus is not on estimating the magnitude of the parameter. Instead, the focus is on deciding which of two hypothetical prior distributions is least incredible. One prior expresses the hypothesis that the parameter value is exactly the null value. The alternative prior expresses the hypothesis that the parameter could be any value, according to some form of broad distribution. (p. 344)
+> In this section we take a different approach. Some researchers prefer instead to pose the question in terms of model comparison. In this framing of the question, the focus is not on estimating the magnitude of the parameter. Instead, the focus is on deciding which of two hypothetical prior distributions is least incredible. One prior expresses the hypothesis that the parameter value is exactly the null value. The alternative prior expresses the hypothesis that the parameter could be any value, according to some form of broad distribution (p. 344).
 
-### Is a coin fair or not?
+### Is a Coin Fair or Not?
 
 Some [e.g., @leeModelingIndividualDifferences2005; @zhuCounterintuitiveNoninformativePrior2004] have argued the Haldane prior is superior to the uniform $\operatorname{beta} (1, 1)$ when choosing an uninformative prior for $\theta$. The Haldane, recall, is $\operatorname{beta} (\epsilon, \epsilon)$, where $\epsilon$ is some small value approaching zero (e.g., 0.01). We'll use our typical steps with the grid aproximation to compute the data for the left column of Figure 12.3 (i.e., the column based on the Haldane prior).
 
@@ -615,8 +616,9 @@ d <-
   mutate(prior      = dbeta(x = theta, shape1 = epsilon, shape2 = epsilon),
          likelihood = bernoulli_likelihood(theta = theta,
                                            data = trial_data)) %>%
-  # we have to slice off the first and last values because they go to infinity on the prior, 
-  # which creates problems when computing the denominator `sum(likelihood * prior)` (i.e., p(D))
+  # we have to slice off the first and last values because they go to 
+  # infinity on the prior, which creates problems when computing the 
+  # denominator `sum(likelihood * prior)` (i.e., p(D))
   slice(2:999) %>% 
   mutate(posterior = likelihood * prior / sum(likelihood * prior))
 
@@ -625,7 +627,7 @@ head(d)
 
 Here's the left column of Figure 12.3.
 
-```{r, fig.width = 4.5, fig.height = 7, warning = F, message = F}
+```{r, fig.width = 4.5, fig.height = 7, warning = FALSE, message = FALSE}
 p1 <-
   d %>% 
   ggplot(aes(x = theta, y = prior)) +
@@ -659,7 +661,7 @@ library(patchwork)
   theme(panel.grid = element_blank())
 ```
 
-We can calculate the beta parameters for the posterior using the formula $\operatorname{beta} (\theta | z + \alpha, N - z + \beta)$.
+We can calculate the beta parameters for the posterior using the formula $\operatorname{beta} \left( \theta \mid z + \alpha, \; N - z + \beta \right)$.
 
 ```{r}
 # alpha
@@ -688,7 +690,7 @@ head(d)
 
 Now here's the right column of Figure 12.3.
 
-```{r, fig.width = 4.5, fig.height = 7, warning = F, message = F}
+```{r, fig.width = 4.5, fig.height = 7, warning = FALSE, message = FALSE}
 p1 <-
   d %>% 
   ggplot(aes(x = theta, y = prior)) +
@@ -728,7 +730,7 @@ n - z + beta
 
 Following the formula for the null hypothesis,
 
-$$p(z, N \mid M_\text{null}) = \theta_\text{null}^z(1 - \theta_\text{null})^{(N - z)},$$
+$$p \left( z, N \mid M_\text{null} \right) = \theta_\text{null}^z \left( 1 - \theta_\text{null} \right)^{(N - z)},$$
 
 we can compute the probability of the data given the null hypothesis.
 
@@ -740,7 +742,7 @@ theta <- 0.5
 
 The formula for the marginal likelihood for the alternative hypothesis $M_\text{alt}$ is
 
-$$p(z, N \mid M_\text{alt}) = \frac{\operatorname{beta} (z + \alpha_\text{alt}, N - z + \beta_\text{alt})}{\operatorname{beta} (\alpha_\text{alt}, \beta_\text{alt})}.$$
+$$p \left( z, N \mid M_\text{alt} \right) = \frac{\operatorname{beta} \left( z + \alpha_\text{alt} , \; N - z + \beta_\text{alt} \right)}{\operatorname{beta}  \left( \alpha_\text{alt}, \; \beta_\text{alt} \right)}.$$
 
 We can make our own `p_d()` function to compute the probability of the data given alternative hypotheses. Here we'll simplify the function a bit to extract `z` and `n` out of the environment.
 
@@ -768,7 +770,7 @@ options(scipen = 0)
 
 Did you notice our use of `options(scipen)`? With the first line, we turned off scientific notation in the print output. We turned scientific notation back on with the second line. But back to the text,
 
-> for now, notice that when the alternative prior is uniform, with $a_\text{alt} = b_\text{alt} = 1.000$, the Bayes' factor shows a (small) preference for the alternative hypothesis, but when the alternative prior approximates the Haldane, the Bayes' factor shows a strong preference for the null hypothesis. As the alternative prior gets closer to the Haldane limit, the Bayes' factor changes by orders of magnitude. Thus, as we have seen before (e.g. [Section 10.6][Extreme sensitivity to prior distribution], p. 292), the Bayes' factor is *very sensitive to the choice of prior distribution*. (p. 345, *emphasis* added)
+> for now, notice that when the alternative prior is uniform, with $a_\text{alt} = b_\text{alt} = 1.000$, the Bayes' factor shows a (small) preference for the alternative hypothesis, but when the alternative prior approximates the Haldane, the Bayes' factor shows a strong preference for the null hypothesis. As the alternative prior gets closer to the Haldane limit, the Bayes' factor changes by orders of magnitude. Thus, as we have seen before (e.g. [Section 10.6][Extreme Sensitivity to Prior Distribution], p. 292), the Bayes' factor is *very sensitive to the choice of prior distribution* (p. 345; *emphasis* added).
 
 On page 346, Kruschke showed some of the 95% HDIs for the marginal distributions of the various $M_\text{alt}$s. We could compute those one at a time with `hdi_of_icdf()`. But why not work in bulk? Like we did in Chapter 10, let's make a custom variant `hdi_of_qbeta()`, which will be more useful within the context of `map2()`.
 
@@ -803,11 +805,11 @@ Further,
 
 > of the Bayes' factors in Equation 12.4, which is most appropriate? If your analysis is driven by the urge for a default, uninformed alternative prior, then the prior that best approximates the Haldane is most appropriate. Following from that, we should strongly prefer the null hypothesis to the Haldane alternative. While this is mathematically correct, it is meaningless for an applied setting because the Haldane alternative represents nothing remotely resembling a credible alternative hypothesis. The Haldane prior sets prior probabilities of virtually zero at all values of $\theta$ except $\theta = 0$ and $\theta = 1$. There are very few applied settings where such a U-shaped prior represents a genuinely meaningful theory. (p. 346).
 
-### Bayes' factor can accept null with poor precision.
+### The Bayes' Factor Can Accept a Null with Poor Precision
 
 Here are the steps to make the left column of Figure 12.4 (i.e., the column based on very weak data and the Haldane prior).
 
-```{r, fig.width = 4.5, fig.height = 7, warning = F, message = F}
+```{r, fig.width = 4.5, fig.height = 7, warning = FALSE, message = FALSE}
 # we need these to compute the likelihood
 n <- 2
 z <- 1
@@ -819,8 +821,9 @@ d <-
   mutate(prior      = dbeta(x = theta, shape1 = epsilon, shape2 = epsilon),
          likelihood = bernoulli_likelihood(theta = theta,
                                            data = trial_data)) %>%
-  # like before, we have to slice off the first and last values because they go to infinity on the
-  # prior, which creats problems when computing the denominator `sum(likelihood * prior)` (i.e., p(D))
+  # like before, we have to slice off the first and last values because 
+  # they go to infinity on the prior, which creats problems when computing 
+  # the denominator `sum(likelihood * prior)` (i.e., p(D))
   slice(2:999) %>% 
   mutate(posterior = likelihood * prior / sum(likelihood * prior))
 
@@ -881,7 +884,7 @@ Just like in the text, "the Bayes' factor is 51.0 in favor of the null hypothesi
 
 Here are the steps to make the right column of Figure 12.4, which is based on stronger data and a flat $\operatorname{beta} (1, 1)$ prior.
 
-```{r, fig.width = 4.5, fig.height = 7, warning = F, message = F}
+```{r, fig.width = 4.5, fig.height = 7, warning = FALSE, message = FALSE}
 # we need these to compute the likelihood
 n <- 14
 z <- 7
@@ -947,9 +950,9 @@ b <- 1
 
 A BF of 3.14 in favor of the null is lackluster evidence. And happily so given the breadth of the HDIs.
 
-Kruschke discussed how we'd need $z = 1200$ and $N = 2400$ before the posterior HDIs would fit within a narrow ROPE like 0.48 and 0.52. Here's what that would look like based on the priors from Figure 12.4.
+Kruschke discussed how we'd need $z = 1, \!200$ and $N = 2, \!400$ before the posterior HDIs would fit within a narrow ROPE like 0.48 and 0.52. Here's what that would look like based on the priors from Figure 12.4.
 
-```{r, fig.width = 6, fig.height = 4, warning = F, message = F}
+```{r, fig.width = 6, fig.height = 4, warning = FALSE, message = FALSE}
 z <- 1200
 n <- 2400
 alpha <-     z + epsilon
@@ -989,19 +992,19 @@ p2 <-
   scale_y_continuous(NULL, breaks = NULL, expand = expansion(mult = c(0, 0.05)))
 ```
 
-> There is no way around this inconvenient statistical reality: high precision demands a large sample size (and a measurement device with minimal possible noise). But when we are trying to accept a specific value of $\theta$, is seems logically appropriate that we should have a reasonably precise estimate indicating that specific value. (p. 348)
+> There is no way around this inconvenient statistical reality: high precision demands a large sample size (and a measurement device with minimal possible noise). But when we are trying to accept a specific value of $\theta$, is seems logically appropriate that we should have a reasonably precise estimate indicating that specific value (p. 348).
 
-### Are different groups equal or not?
+### Are Different Groups Equal or Not?
 
 > Researchers often want to ask the question, Are the groups different or not?
 >
-> As a concrete example, suppose we conduct an experiment about the effect of background music on the ability to remember. As a simple test of memory, each person tries to memorize the same list of 20 words (such as "chair," "shark," "radio," etc.). They see each word for a specific time, and then, after a brief retention interval, recall as many words as they can. (p. 348)
+> As a concrete example, suppose we conduct an experiment about the effect of background music on the ability to remember. As a simple test of memory, each person tries to memorize the same list of 20 words (such as "chair," "shark," "radio," etc.). They see each word for a specific time, and then, after a brief retention interval, recall as many words as they can (p. 348).
 
 If you look in Kruschke's `OneOddGroupModelComp2E.R` file, you can get his simulation code. Here we've dramatically simplified it. This attempt does not exactly reproduce what his script did, but it gets it in spirit.
 
 ```{r}
-# For each subject, specify the condition s/he was in,
-# the number of trials s/he experienced, and the number correct.
+# For each subject, specify the condition they were in,
+# the number of trials they experienced, and the number correct.
 n_g <- 20  # number of subjects per group
 n_t <- 20  # number of trials per subject
 
@@ -1028,18 +1031,18 @@ my_data %>%
   summarise(mean_n_recalled = mean(n_recalled))
 ```
 
-#### Model specification in ~~JAGS~~ brms.
+#### Model Specification in ~~JAGS~~ brms
 
 Recall that although **brms** does accommodate models based on the Bernoulli likelihood, it doesn't do so when the data are aggregated. With our aggregate Bernoulli data, we'll have to use the conventional binomial likelihood, instead. We'll compute two models. Our full model will be
 
 ```{=latex}
 \begin{align*}
-n _{{\rm recalled}, ij} & \sim \operatorname{Binomial} \left( n = 20, \theta _{j} \right), \text{ where} \\
+n _{{\rm recalled}, ij} & \sim \operatorname{Binomial} \left( n = 20, \theta _{j} \right), \text{ in which} \\
 \operatorname{logit} \left( \theta _j \right) &= \beta _{0, j} .
 \end{align*}
 ```
 
-In our equation, $\beta_{0_j}$ is the group-specific intercept within the logistic regression model. We'll use the $N(0, 1.5)$ prior for the intercept. Though it appears strongly regularizing in the log-odds space, it's quite flat on the $\theta$ space. If we wanted to be more conservative in the $\theta$ space, we might use something more like $N(0, 1)$.
+In our equation, $\beta_{0, j}$ is the group-specific intercept within the logistic regression model. We'll use the $N(0, 1.5)$ prior for the intercept. Though it appears strongly regularizing in the log-odds space, it's quite flat on the $\theta$ space. If we wanted to be more conservative in the $\theta$ space, we might use something more like $N(0, 1)$.
 
 ```{r fit12.1}
 fit12.1 <-
@@ -1111,7 +1114,7 @@ post %>%
 
 If we wanted to know what proportion of the difference distributions were greater than zero, we could do something like this.
 
-```{r, message = F}
+```{r, message = FALSE}
 post %>% 
   pivot_longer(everything()) %>% 
   group_by(name) %>% 
@@ -1136,7 +1139,7 @@ fit12.2 <-
 
 Here we'll compare the two models with the LOO.
 
-```{r loo_fit12.1_fit12.2, message = F}
+```{r loo_fit12.1_fit12.2, message = FALSE}
 fit12.1 <- add_criterion(fit12.1, criterion = "loo")
 fit12.2 <- add_criterion(fit12.2, criterion = "loo")
 
@@ -1146,14 +1149,14 @@ loo_compare(fit12.1, fit12.2) %>%
 
 The LOO comparison suggests `fit12.1`, the full model with the `condition`-specific intercepts, is an improvement over the restricted one-intercept-only model.  We can also compare the models with their weights via the `model_weights()` function. Here we'll use `weights = "loo"` criterion.
 
-```{r 12_loo_weights, cache = T}
+```{r 12_loo_weights, cache = TRUE}
 model_weights(fit12.1, fit12.2, weights = "loo") %>% 
   round(digits = 3)
 ```
 
 Recall that within a given comparison, the weights sum to 1, with better fitting models tending closer to 1 than the other(s). In this case, almost all the weight went to the $M_\text{full}$, `fit12.1`.
 
-#### Bonus: Hypothesis testing in brms.
+#### Bonus: Hypothesis Testing in brms
 
 Disclaimer: I am not a fan of hypothesis testing within the Bayesian framework. Outside of pedagogical material like this, I do not use these methods. However, it'd seem negligent not to at least mention the convenience function designed for that purpose in **brms**: the `hypothesis()` function. From the `hypothesis.brmsfit` section in the [**brms** reference manual](https://CRAN.R-project.org/package=brms/brms.pdf) [@brms2021RM, p. 99] we read:
 
@@ -1183,7 +1186,7 @@ hypothesis(fit12.1,
 
 Here we no longer get summary information in the `Evid.Ratio` and `Post.Prob` columns. But we do get that posterior summary information and we also get that little `*` symbol in the `Star` column, which was based on the brms default `alpha = 0.05`.
 
-Let's see what happens when we test a different kind of directional hypothesis, $\theta_\text{Motzart} - \theta_\text{Bach} > 0$.
+Let's see what happens when we test a different kind of directional hypothesis, $\theta_\text{Mozart} - \theta_\text{Bach} > 0$.
 
 ```{r}
 hypothesis(fit12.1, 
@@ -1191,7 +1194,7 @@ hypothesis(fit12.1,
            inv_logit_scaled(conditionBach) > 0")
 ```
 
-Here we get an underwhelming BF of 1.49. The posterior probability that hypothesis versus its logical alternative is .59. Notice we no longer have a `*` in the `Star` column.
+Here we get an underwhelming BF of 1.49. The posterior probability that hypothesis versus its logical alternative is 0.59. Notice we no longer have a `*` in the `Star` column.
 
 One last thing about the `hypothesis()` function: you can feed it into the `plot()` function to get a quick plot of the results. Here's what that looks like from our last example.
 
@@ -1214,22 +1217,22 @@ Back to the text, Kruschke wrapped up this section by explaining
 
 Hey, we just read about that Savage-Dickey method when learning about the `brms::hypothesis()` function!
 
-## Estimation and model comparison?
+## Estimation and Model Comparison?
 
 I'll leave this for you to decide. Here's Kruschke: "As mentioned above, neither method for null value assessment (parameter estimation or model comparison) is uniquely 'correct.' The two approaches merely pose the question of the null value in different ways" (p. 354). If you'd like to read more on comparisons between the HDI, ROPE, and Bayes factor methods, check out the [-@linde2021DecisionsAboutequivalence] simulation study by Linde and colleagues or the follow-up [-@campbell2021re] preprint by Campbell and Gustafson.
 
-## Session info {-}
+## Session Info {-}
 
 ```{r}
 sessionInfo()
 ```
 
-```{r, echo = F}
+```{r, echo = FALSE}
 # here we'll remove our objects
 rm(oa, bernoulli_likelihood, n, z, trial_data, d, alpha, beta, hdi_of_icdf, h, my_data, fit9.2, c, c_small, name_list, nd, correlation_matrix, mu, sd, covariance_matrix, ex, hx, ey, hy, lines, text, epsilon, p1, p2, p3, p_d_null, p_d, hdi_of_qbeta, a, b, n_g, n_t, fit12.1, post, fit12.2, f, theta)
 ```
 
-```{r, echo = F, message = F, warning = F, results = "hide"}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, results = "hide"}
 ggplot2::theme_set(ggplot2::theme_grey())
 pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
